@@ -1,0 +1,26 @@
+# Godot 4 & Engine Cache
+.godot/
+*.translation
+*.import
+
+# Godot Editor & OS Temporary Files
+.import/
+export_presets.cfg
+*.tmp
+*.log
+godot_output.log
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Large Binaries / Engine Distribution (GitHub limits files to 100MB)
+# Godot engine zip & binaries can be fetched or installed via Godot 4.x
+GodotEngine/*.zip
+GodotEngine/Godot_v4.7.2-stable_win64.exe
+
+# Build and scratch artifacts
+*.o
+*.obj
+launcher.c
+debug_test*.gd
+

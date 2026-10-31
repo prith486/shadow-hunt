@@ -1,0 +1,15 @@
+# Godot 4 & Engine Cache
+.godot/
+*.translation
+
+# Godot Editor & OS Temporary Files
+.import/
+export_presets.cfg
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Scratch and intermediate scripts
+debug_test*.gd
