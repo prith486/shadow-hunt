@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+*.pdf
+
+# Unity build binaries (do not push heavy engine DLLs/binaries to git)
+HunterAssassinUnity/Build/ShadowHunt_Data/
+HunterAssassinUnity/Build/MonoBleedingEdge/
+HunterAssassinUnity/Build/D3D12/
+HunterAssassinUnity/Build/*.exe
+HunterAssassinUnity/Build/*.dll
+HunterAssassinUnity/Build/*.log
