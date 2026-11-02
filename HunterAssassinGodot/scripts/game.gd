@@ -209,6 +209,7 @@ func _configure_inputs() -> void:
 	_add_key_action("debug_overlay", [KEY_H])
 	_add_key_action("restart", [KEY_R])
 	_add_key_action("continue_level", [KEY_ENTER, KEY_KP_ENTER])
+	_add_key_action("mic_noise_key", [KEY_V, KEY_N])
 
 func _add_key_action(action_name: String, keycodes: Array[int]) -> void:
 	if not InputMap.has_action(action_name):
@@ -462,11 +463,14 @@ func _set_microphone_enabled(enabled: bool) -> void:
 		if is_instance_valid(microphone_toggle):
 			microphone_toggle.set_pressed_no_signal(false)
 		return
-	if AudioServer.get_input_device_list().is_empty():
+	var devices := AudioServer.get_input_device_list()
+	if devices.is_empty():
 		push_warning("Microphone monitoring is unavailable: no input device was found.")
 		if is_instance_valid(microphone_toggle):
 			microphone_toggle.set_pressed_no_signal(false)
 		return
+	if AudioServer.input_device == "" or AudioServer.input_device == "Default":
+		AudioServer.input_device = devices[0]
 	var bus_index := AudioServer.get_bus_index("MicrophoneCapture")
 	if bus_index < 0:
 		bus_index = AudioServer.bus_count
@@ -502,7 +506,8 @@ func _update_microphone(delta: float = 0.016) -> void:
 	var peak := 0.0
 	for sample in samples:
 		peak = maxf(peak, maxf(absf(sample.x), absf(sample.y)))
-	var measured_level := clampf(maxf(raw_level * 3.5, peak * MIC_LEVEL_GAIN * 1.5), 0.0, 100.0)
+	var manual_noise: bool = Input.is_action_pressed("mic_noise_key")
+	var measured_level := 25.0 if manual_noise else clampf(maxf(raw_level * 3.5, peak * MIC_LEVEL_GAIN * 1.5), 0.0, 100.0)
 	if measured_level > voice_level_percent:
 		voice_level_percent = measured_level
 	else:
@@ -4081,7 +4086,7 @@ func _update_ui() -> void:
 	alarm_warning.text = "LOCKDOWN\n%.1f" % alarm_timer if alarm_active else ""
 	footer_label.text = (
 		"WASD Move | Ctrl/J Jump | Shift Sprint | "
-		+ "Space Attack | E Quiet Glass | Click Hide | H Debug | R Retry | Esc Menu"
+		+ "Space Attack | E Quiet Glass | Click Hide | V/N Mic Noise | H Debug | R Retry | Esc Menu"
 	)
 	var displayed_level := mini(level_index + 1, 3)
 	hud_values.title.text = "SHADOW HUNT  [L%d/3]" % displayed_level
