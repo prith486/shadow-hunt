@@ -18,15 +18,15 @@ The **Shadow Hunt** project spans two complementary engineering systems:
 
 | Functional Area | Subsystem / Module | Primary Lead | Key Deliverables & Algorithms |
 | :--- | :--- | :--- | :--- |
+| **With Engine (Godot 4)** | Level 3: Complete Nightmare Stage & Acoustic Voice AI | **Prithvi** | Mommy blind patrol DAG, real-time mic bus decibel tracking, floor/glass shockwaves, hiding spots, 60s survival |
 | **With Engine (Godot 4)** | Master Game Loop & State Machine | **Prithvi** | `game.gd` master coordinator, phase lifecycle, session state, frame-delta synchronization |
-| **With Engine (Godot 4)** | Level 2: Warden Boss Multi-Phase System | **Prithvi** | 3-phase state machine: directional shield reflection, homing spread-shots, overdrive teleport & ground slams |
-| **With Engine (Godot 4)** | Level 3: Acoustic Horror AI & Mic Input | **Prithvi** | Real-time audio bus capture, decibel threshold normalization, acoustic alert propagation to room nodes |
-| **With Engine (Godot 4)** | Headless CI & Regression Test Suites | **Prithvi** | `mommy_voice_ai_test.gd`, `level3_revision_test.gd` (zero-display automated verification) |
+| **With Engine (Godot 4)** | Headless CI & Automated Test Suites | **Prithvi** | `mommy_voice_ai_test.gd`, `level3_revision_test.gd` (zero-display automated verification) |
 | **With Engine (Godot 4)** | Native Packaging & Launcher Scripts | **Prithvi** | Windows native binary packaging (`ShadowHunt.exe`), orchestrator scripts (`run_game.bat`) |
+| **With Engine (Godot 4)** | Level 2: Warden Boss Multi-Phase System | **Snehal** | 3-phase state machine: directional shield reflection, homing spread-shots, overdrive teleport & ground slams |
 | **With Engine (Godot 4)** | Stealth AI & Dynamic FOV Raycasting | **Snehal** | 90° FOV cone mathematical projections, ray-march obstacle occlusion, LOS visibility polygon calculation |
 | **With Engine (Godot 4)** | Enemy Archetypes & Combat Mechanics | **Snehal** | Waypoint patrol guards, enforcer riot-shield deflection physics, flank detection, instant takedown logic |
 | **With Engine (Godot 4)** | Computational Geometry Math Library | **Snehal** | `cg_math.gd` (ray-plane intersections, circle-box sweep tests, capsule segment projections) |
-| **With Engine (Godot 4)** | Tactical Concealment & Stealth Interactivity | **Snehal** | Hiding spots (Wardrobes, Fridge, Sofa, Laundry), stealth sneaking footstep dampening, quiet glass doors |
+| **With Engine (Godot 4)** | Tactical Concealment & Stealth Interactivity | **Snehal** | Level 1 & 2 Hiding spots, stealth sneaking footstep dampening (`E`), quiet glass door mechanics |
 | **With Engine (Godot 4)** | Dynamic HUD & Player Status Overlays | **Anushka** | Dynamic health pips, real-time mic decibel level meter, detection status indicators, contextual input prompts |
 | **With Engine (Godot 4)** | Level 1 Compound Layout & Tile Architecture | **Anushka** | Tactical compound design, camera placements, obstacle corridors, extraction gate trigger zones |
 | **With Engine (Godot 4)** | Programmatic Audio Synthesis & Visual FX | **Anushka** | Real-time tone synthesis (lasers, klaxons, shield clangs), particle emitters (sparks, charge trails, flash) |
@@ -47,25 +47,23 @@ The **Shadow Hunt** project spans two complementary engineering systems:
 ## Detailed Individual Contributions
 
 ### 1. Prithvi
-*Role: Core Engine Architect, Systems Programmer & Advanced Algorithms Lead*
+*Role: Core Engine Architect, Acoustic Horror Lead & Systems Programmer*
 
 #### With Game Engine (Godot 4):
-- **Master Gameplay Coordinator (`scripts/game.gd`):** Architected the core game loop, lifecycle manager, scene transitions, delta-time smoothing, and global game state machine.
-- **The Warden Boss Encounter (Level 2 Multi-Phase Combat):**
-  - Designed the 3-phase combat state machine for the Warden mech.
-  - Phase 1: Frontal kinetic shield deflection algorithm utilizing normal vector reflections and rear vulnerability strike zones.
-  - Phase 2: Multi-directional spread projectile bursts with predictive angular steering.
-  - Phase 3: Overdrive berserk phase featuring teleport relocations, telegraph warning rays, and radial ground slam shockwaves.
-  - Hit pip health system with custom audio impact signals and frame-freeze combat feel.
-- **Acoustic Horror Subsystem & Voice AI (Level 3 Nightmare):**
-  - Integrated Godot's audio bus capture to poll live microphone decibel amplitude.
-  - Engineered acoustic wave alert propagation that informs the blind Mommy AI's navigation graph.
-  - Authored the autonomous room-to-room navigation DAG allowing Mommy to patrol blindly and investigate audio disturbances dynamically.
+- **Level 3: Complete Nightmare Stage & Acoustic Voice AI Survival System:**
+  - Implemented the entire standalone **Nightmare Level (Survive Mommy)** architecture from the ground up.
+  - **Acoustic / Microphone Engine:** Connected directly to Godot's audio bus capture to poll live USB/microphone decibel amplitudes in real time, calculating peak and RMS noise thresholds with dynamic ambient noise floor filtering.
+  - **The Blind Mommy AI:** Engineered the autonomous room-to-room navigation DAG. Mommy patrols blindly without vision cones; when microphone audio exceeds threshold ($>3\%$), she immediately calculates shortest path corridors and sprints at high speed ($135\text{ px/s}$) directly to the disturbance origin.
+  - **Acoustic Shockwave System:** Programmed noise emission triggers for sprinting across wooden floorboards and shattering fragile glass doors, alerting Mommy instantly across adjacent rooms.
+  - **Hiding & Evasion Protocol:** Designed Level 3 hiding interactive entities (Wardrobe, Refrigerator, Sofa, Laundry Basket) that unregister the player's collision shape, sever Mommy's pursuit target, and initiate her autonomous 3–4 second room inspection sequence before resuming patrol.
+  - **Survival Extraction & Win State:** Implemented the 60-second survival countdown timer, facility power alarm states, and main entrance extraction gate unlocks.
 - **Headless Automated Test Infrastructure:**
-  - Built `scripts/level3_revision_test.gd` and `scripts/mommy_voice_ai_test.gd` running headlessly via Godot CLI.
-  - Automated verification of room navigation DAGs, sound trigger thresholds, collision boxes, and takedown mechanics.
+  - Authored `scripts/mommy_voice_ai_test.gd` and `scripts/level3_revision_test.gd` running headlessly via Godot CLI.
+  - Automated verification of room navigation DAGs, acoustic thresholds, door traversal, collision boxes, and takedown mechanics.
+- **Master Gameplay Coordinator (`scripts/game.gd`):**
+  - Architected the master game loop, state machine, level transition manager, frame-delta smoothing, and global session persistence.
 - **Native Deployment Pipeline:**
-  - Packaged standalone Windows binary (`ShadowHunt.exe`) and batch runtime orchestrators (`run_game.bat`).
+  - Configured standalone Windows binary packaging (`ShadowHunt.exe`) and batch runtime orchestrators (`run_game.bat`).
 
 #### Without Game Engine (Computer Graphics C++ & Python Pipeline):
 - **Phase 1: High-Performance C++ Rasterization Engine (`phase1/assignment1_algorithms.cpp`, `core_graphics.cpp`):**
@@ -84,20 +82,26 @@ The **Shadow Hunt** project spans two complementary engineering systems:
 ---
 
 ### 2. Snehal
-*Role: Lead Graphics Engineer, AI Logic & Combat Mechanics Specialist*
+*Role: Lead Graphics Engineer, Boss Combat Architect & AI Systems Specialist*
 
 #### With Game Engine (Godot 4):
-- **Dynamic Field of View (FOV) & Raycasting Vision System:**
-  - Engineered the 2D vision cone algorithm with $90^\circ$ FOV sweeps and heading dot-product calculations.
+- **Level 2: The Warden Boss Encounter (Complete Combat System):**
+  - Architected and implemented the entire 3-phase combat engine for "The Warden" mech boss.
+  - **Phase 1 (Kinetic Energy Shield):** Programmed directional kinetic shield deflection physics utilizing normal vector reflections to bounce frontal player attacks, exposing rear thermal coils as the only vulnerable strike zone.
+  - **Phase 2 (Tracking Spread Fire):** Engineered multi-directional spread projectile bursts with predictive angular steering and high-velocity arena charges.
+  - **Phase 3 (Berserk Overdrive):** Developed overdrive mechanics featuring teleport relocations, telegraph warning rays, and radial ground slam shockwaves.
+  - **Boss Combat Feedback:** Created the 3-hit health pip display, damage flash shaders, frame-freeze impact feel, and phase transition audio cues.
+- **Dynamic Field of View (FOV) & Raycasting Vision Engine:**
+  - Engineered the real-time 2D vision cone algorithm with $90^\circ$ FOV sweeps and forward heading dot-product calculations.
   - Implemented continuous ray-marching against wall and crate geometry to cast dynamic shadows and generate line-of-sight (LOS) vision polygons.
-- **Enemy Archetypes & Combat Logic:**
+- **Enemy Archetypes & Tactical Combat Mechanics:**
   - Developed the **Patrol Guard** behavior tree: cyclic waypoint pathing, vision detection buildup (Unaware $\to$ Suspicious $\to$ Alert), and high-velocity laser projectile fire.
   - Designed the **Enforcer (Shielded Guard)** archetype: forward riot shield blocking all frontal takedowns and ranged attacks, requiring player flanking and rear takedowns.
   - Authored instant melee takedowns from behind with angle checks and audio feedback.
 - **Computational Geometry & Collision Utility (`scripts/cg_math.gd`):**
   - Authored mathematical helper modules for ray-box intersections, circle-box sweep tests, capsule segment projections, and line-to-line intersection queries.
 - **Stealth Concealment & Environmental Interactions:**
-  - Implemented interactive hiding spot logic (Wardrobes, Refrigerators, Sofas, Laundry Baskets) that break enemy pursuit sightlines and reset enemy alert timers.
+  - Implemented interactive hiding spot logic in Levels 1 & 2 that break enemy pursuit sightlines and reset enemy alert timers.
   - Implemented sneak walk mechanics (`E` key) reducing footstep acoustic radius, and quiet glass door opening mechanics.
 
 #### Without Game Engine (Computer Graphics C++ & Python Pipeline):
@@ -117,7 +121,7 @@ The **Shadow Hunt** project spans two complementary engineering systems:
 *Role: Graphics Algorithms Specialist, UI/UX Designer & Systems Integration Lead*
 
 #### With Game Engine (Godot 4):
-- **Dynamic In-Game HUD & User Interface:**
+- **Dynamic In-Game Tactical HUD & Visual Interface:**
   - Engineered the tactical HUD overlay displaying remaining player health pips, objective notifications, and mission timers.
   - Developed the live real-time microphone decibel meter with animated noise threshold bars for the Level 3 Nightmare stage.
   - Implemented dynamic state indicator icons (Undetected, Suspicious, Alerted, Hidden in Wardrobe/Fridge/Sofa/Laundry) and contextual action tooltips.
@@ -130,11 +134,11 @@ The **Shadow Hunt** project spans two complementary engineering systems:
   - Created the pause menu interface, mission restart triggers, controls reference screen, and level selection menus.
 
 #### Without Game Engine (Computer Graphics C++ & Python Pipeline):
-- **Phase 4: Polygon Area Filling Engine (`phase4/fill_algo.py`):**
+- **Phase 4: Polygon Area Filling Suite (`phase4/fill_algo.py`):**
   - Implemented 4-Connected and 8-Connected Boundary Fill algorithms with boundary color checking.
   - Implemented recursive and iterative Flood Fill algorithms with replacement color criteria.
   - Researched and developed the Scan-Line Polygon Fill algorithm utilizing Edge Table (ET) and Active Edge Table (AET) sorted by $y_{\min}$, tracking $x$-intersections and inverse slopes ($1/m$).
-- **Phase 4: Real-Time Filling Visualizer (`phase4/live_fill_visualizer.py`):**
+- **Phase 4: Real-Time Filling Visualizer GUI (`live_fill_visualizer.py`):**
   - Built the interactive GUI visualizer demonstrating animated scanline sweeps across complex polygons.
   - Implemented live visualization of parity checking, edge intersection points, and rasterized pixel span filling.
 - **Phase 2 & Phase 3: Collectibles & Scoring Mechanics (`phase2/collectibles.py`, `phase3/collectibles.py`):**
