@@ -148,3 +148,4 @@ std::vector<ScreenPoint> CGMath::toScreenPoints(const std::vector<Point>& pts) {
     }
     return spts;
 }
+

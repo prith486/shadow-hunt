@@ -5,11 +5,6 @@
 #include <cmath>
 #include "core_graphics.h"
 
-// ============================================================================
-// 2D COMPUTER GRAPHICS MATHEMATICS & 3x3 AFFINE MATRICES (PHASE 2)
-// Exact port of assign3 (1).cpp & cg_math.py
-// ============================================================================
-
 struct Point {
     float x, y;
     Point(float _x = 0.0f, float _y = 0.0f) : x(_x), y(_y) {}
@@ -42,18 +37,16 @@ public:
 
     static float distance(float x1, float y1, float x2, float y2);
 
-    // Ray-Casting algorithm to test if a point is inside an arbitrary polygon
     static bool point_in_polygon(float px, float py, const std::vector<Point>& polygon);
 
-    // Sweeping camera & enemy FOV vision cone polygon generator
     static std::vector<Point> create_cone_polygon(
         float origin_x, float origin_y,
         float facing_angle, float fov_angle,
         float length, int num_arc_steps = 12
     );
 
-    // Converts std::vector<Point> to std::vector<ScreenPoint> for rendering
     static std::vector<ScreenPoint> toScreenPoints(const std::vector<Point>& pts);
 };
 
-#endif // CG_MATH_H
+#endif
+

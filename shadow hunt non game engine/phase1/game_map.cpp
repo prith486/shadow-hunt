@@ -3,11 +3,6 @@
 #include <queue>
 #include <stack>
 
-// ============================================================================
-// MAP MATRIX (20 rows x 36 columns)
-// 0 = WALL / BLOCKED
-// 1 = WALKABLE PATH
-// ============================================================================
 static const int INITIAL_MAP_MATRIX[MAP_ROWS][MAP_COLS] = {
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     {0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0},
@@ -31,9 +26,6 @@ static const int INITIAL_MAP_MATRIX[MAP_ROWS][MAP_COLS] = {
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 };
 
-// ============================================================================
-// CONSTRUCTOR
-// ============================================================================
 GameMap::GameMap(int scrW, int scrH)
     : screenW(scrW), screenH(scrH) {
     for (int r = 0; r < MAP_ROWS; r++) {
@@ -45,19 +37,12 @@ GameMap::GameMap(int scrW, int scrH)
     generate_zero_objects();
 }
 
-// ============================================================================
-// CHECK WHETHER CELL IS WALL
-// ============================================================================
 bool GameMap::is_wall(int row, int col) const {
     if (row < 0 || row >= MAP_ROWS) return true;
     if (col < 0 || col >= MAP_COLS) return true;
     return grid[row][col] == 0;
 }
 
-// ============================================================================
-// GENERATE WALL BOUNDARIES
-// Only create wall boundaries around walkable (1) cells adjacent to walls (0)
-// ============================================================================
 void GameMap::generate_walls() {
     wall_segments.clear();
 
@@ -68,19 +53,18 @@ void GameMap::generate_walls() {
             int x = col * CELL_SIZE;
             int y = row * CELL_SIZE;
 
-            // TOP WALL
             if (is_wall(row - 1, col)) {
                 wall_segments.push_back(WallSegment(x, y, x + CELL_SIZE, y));
             }
-            // BOTTOM WALL
+
             if (is_wall(row + 1, col)) {
                 wall_segments.push_back(WallSegment(x, y + CELL_SIZE, x + CELL_SIZE, y + CELL_SIZE));
             }
-            // LEFT WALL
+
             if (is_wall(row, col - 1)) {
                 wall_segments.push_back(WallSegment(x, y, x, y + CELL_SIZE));
             }
-            // RIGHT WALL
+
             if (is_wall(row, col + 1)) {
                 wall_segments.push_back(WallSegment(x + CELL_SIZE, y, x + CELL_SIZE, y + CELL_SIZE));
             }
@@ -88,12 +72,6 @@ void GameMap::generate_walls() {
     }
 }
 
-// ============================================================================
-// GENERATE OBJECTS FROM ZERO CELLS
-// Single zero          -> Peach Block
-// 2 or 3 zeros         -> Wooden Crates
-// 4+ zeros or border   -> Normal Wall
-// ============================================================================
 void GameMap::generate_zero_objects() {
     crates.clear();
     peach_blocks.clear();
@@ -127,7 +105,6 @@ void GameMap::generate_zero_objects() {
                 s.push(std::make_pair(r, c + 1));
             }
 
-            // Check if group touches the border of the matrix
             bool touches_boundary = false;
             for (size_t i = 0; i < group.size(); i++) {
                 int r = group[i].first;
@@ -155,24 +132,17 @@ void GameMap::generate_zero_objects() {
     }
 }
 
-// ============================================================================
-// DRAW FLOOR (Clear active screen buffer to background color)
-// ============================================================================
 void GameMap::draw_floor(int camX, int camY) {
-    // Background is cleared in main game loop with setfillstyle/bar
+
 }
 
-// ============================================================================
-// DRAW WALL USING BRESENHAM
-// WALL_THICKNESS = 5 pixels (offset from -2 to +2)
-// ============================================================================
 void GameMap::draw_wall(int x1, int y1, int x2, int y2, int camX, int camY) {
-    int half = WALL_THICKNESS / 2; // 2
-    if (y1 == y2) { // Horizontal wall
+    int half = WALL_THICKNESS / 2;
+    if (y1 == y2) {
         for (int offset = -half; offset <= half; offset++) {
             drawBresenhamLine(x1, y1 + offset, x2, y2 + offset, COLOR_WIREFRAME, camX, camY, screenW, screenH);
         }
-    } else { // Vertical wall
+    } else {
         for (int offset = -half; offset <= half; offset++) {
             drawBresenhamLine(x1 + offset, y1, x2 + offset, y2, COLOR_WIREFRAME, camX, camY, screenW, screenH);
         }
@@ -185,23 +155,17 @@ void GameMap::draw_walls(int camX, int camY) {
     }
 }
 
-// ============================================================================
-// DRAW 50x50 WOODEN CRATE
-// Wireframe Box + Diagonal 'X' using Bresenham
-// ============================================================================
 void GameMap::draw_crate(const Rect& rect, int camX, int camY) {
     int x = rect.x;
     int y = rect.y;
     int w = rect.width;
     int h = rect.height;
 
-    // Outer wireframe box
     drawBresenhamLine(x, y, x + w, y, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawBresenhamLine(x + w, y, x + w, y + h, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawBresenhamLine(x + w, y + h, x, y + h, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawBresenhamLine(x, y + h, x, y, COLOR_WIREFRAME, camX, camY, screenW, screenH);
 
-    // 'X' pattern diagonals
     drawBresenhamLine(x, y, x + w, y + h, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawBresenhamLine(x + w, y, x, y + h, COLOR_WIREFRAME, camX, camY, screenW, screenH);
 }
@@ -212,23 +176,17 @@ void GameMap::draw_crates(int camX, int camY) {
     }
 }
 
-// ============================================================================
-// DRAW SINGLE PEACH BLOCK (50x50)
-// Wireframe Box + Crosshair (+) Texture using DDA
-// ============================================================================
 void GameMap::draw_peach_block(const Rect& rect, int camX, int camY) {
     int x = rect.x;
     int y = rect.y;
     int w = rect.width;
     int h = rect.height;
 
-    // Outer wireframe box (using DDA)
     drawLineDDA(x, y, x + w, y, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawLineDDA(x + w, y, x + w, y + h, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawLineDDA(x + w, y + h, x, y + h, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawLineDDA(x, y + h, x, y, COLOR_WIREFRAME, camX, camY, screenW, screenH);
 
-    // Crosshair (+) texture (using DDA)
     drawLineDDA(x + w / 2, y, x + w / 2, y + h, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawLineDDA(x, y + h / 2, x + w, y + h / 2, COLOR_WIREFRAME, camX, camY, screenW, screenH);
 }
@@ -239,31 +197,18 @@ void GameMap::draw_peach_blocks(int camX, int camY) {
     }
 }
 
-// ============================================================================
-// DRAW STATIC CHARACTER OUTLINE
-// Centered at (75, 75) - cell (1, 1)
-// Triangle body: Bresenham Line
-// Crosshair weapon: DDA Line
-// ============================================================================
 void GameMap::draw_character(int camX, int camY) {
     int cx = 75;
     int cy = 75;
 
-    // Body (Bresenham)
     drawBresenhamLine(cx, cy - 15, cx + 15, cy + 15, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawBresenhamLine(cx + 15, cy + 15, cx - 15, cy + 15, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawBresenhamLine(cx - 15, cy + 15, cx, cy - 15, COLOR_WIREFRAME, camX, camY, screenW, screenH);
 
-    // Weapon/Crosshair (DDA)
     drawLineDDA(cx, cy - 15, cx, cy - 30, COLOR_WIREFRAME, camX, camY, screenW, screenH);
     drawLineDDA(cx - 5, cy - 25, cx + 5, cy - 25, COLOR_WIREFRAME, camX, camY, screenW, screenH);
 }
 
-// ============================================================================
-// DRAW DEBUG GRID
-// Vertical lines: Bresenham
-// Horizontal lines: DDA
-// ============================================================================
 void GameMap::draw_debug_grid(int camX, int camY) {
     for (int x = 0; x <= MAP_WIDTH; x += CELL_SIZE) {
         drawBresenhamLine(x, 0, x, MAP_HEIGHT, COLOR_GRID, camX, camY, screenW, screenH);
@@ -273,9 +218,6 @@ void GameMap::draw_debug_grid(int camX, int camY) {
     }
 }
 
-// ============================================================================
-// DRAW COMPLETE MAP
-// ============================================================================
 void GameMap::draw(int camX, int camY, bool showGrid) {
     draw_floor(camX, camY);
     draw_walls(camX, camY);
@@ -287,9 +229,6 @@ void GameMap::draw(int camX, int camY, bool showGrid) {
     }
 }
 
-// ============================================================================
-// GET COLLISION RECTANGLES
-// ============================================================================
 std::vector<Rect> GameMap::get_collision_rects() const {
     std::vector<Rect> collision_rects;
 
@@ -317,3 +256,4 @@ std::vector<Rect> GameMap::get_collision_rects() const {
 
     return collision_rects;
 }
+

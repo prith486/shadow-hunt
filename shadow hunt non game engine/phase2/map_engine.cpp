@@ -5,7 +5,6 @@ const float MapEngine::WALL_THICKNESS = 5.0f;
 const float MapEngine::PASSAGE_WIDTH  = 100.0f;
 const float MapEngine::BOX_SIZE       = 120.0f;
 
-// Helper to draw a rectangle boundary with Bresenham lines
 static inline void drawRectLines(float x1, float y1, float x2, float y2, int color) {
     int ix1 = (int)std::round(x1);
     int iy1 = (int)std::round(y1);
@@ -18,9 +17,6 @@ static inline void drawRectLines(float x1, float y1, float x2, float y2, int col
     drawBresenhamLine(ix1, iy2, ix1, iy1, color);
 }
 
-// ============================================================================
-// WALL IMPLEMENTATION
-// ============================================================================
 bool Wall::collides_with_circle(float cx, float cy, float r) const {
     float nearest_x = std::max(x1, std::min(cx, x2));
     float nearest_y = std::max(y1, std::min(cy, y2));
@@ -33,9 +29,6 @@ void Wall::render() const {
     drawRectLines(x1, y1, x2, y2, COLOR_WIREFRAME_DARK);
 }
 
-// ============================================================================
-// CROSSED BOX (WOODEN CRATE) IMPLEMENTATION
-// ============================================================================
 bool CrossedBox::collides_with_circle(float cx, float cy, float r) const {
     float nearest_x = std::max(x1, std::min(cx, x2));
     float nearest_y = std::max(y1, std::min(cy, y2));
@@ -45,26 +38,21 @@ bool CrossedBox::collides_with_circle(float cx, float cy, float r) const {
 }
 
 void CrossedBox::render() const {
-    // Outer wireframe frame
+
     drawRectLines(x1, y1, x2, y2, COLOR_WIREFRAME_MED);
 
-    // Inner wireframe frame
     float ix1 = x1 + 7.0f;
     float iy1 = y1 + 7.0f;
     float ix2 = x2 - 7.0f;
     float iy2 = y2 - 7.0f;
     drawRectLines(ix1, iy1, ix2, iy2, COLOR_WIREFRAME_DIM);
 
-    // 'X' diagonals using Bresenham lines
     drawBresenhamLine((int)std::round(ix1), (int)std::round(iy1),
                       (int)std::round(ix2), (int)std::round(iy2), COLOR_WIREFRAME_DARK);
     drawBresenhamLine((int)std::round(ix1), (int)std::round(iy2),
                       (int)std::round(ix2), (int)std::round(iy1), COLOR_WIREFRAME_DARK);
 }
 
-// ============================================================================
-// SLIDING DOOR IMPLEMENTATION
-// ============================================================================
 bool Door::update_proximity(float player_x, float player_y) {
     is_open = (CGMath::distance(player_x, player_y, mid_x, mid_y) <= trigger_radius);
     return is_open;
@@ -93,7 +81,6 @@ void Door::render() const {
                           (int)std::round(cur_x2), (int)std::round(cur_y2), COLOR_WIREFRAME_WHITE);
     }
 
-    // Door post markers (+)
     int px1 = (int)std::round(x1);
     int py1 = (int)std::round(y1);
     int px2 = (int)std::round(x2);
@@ -104,9 +91,6 @@ void Door::render() const {
     drawBresenhamLine(px2, py2 - 3, px2, py2 + 3, COLOR_WIREFRAME_DARK);
 }
 
-// ============================================================================
-// EXIT DOOR IMPLEMENTATION
-// ============================================================================
 bool ExitDoor::is_reached(float px, float py, float radius) const {
     float nearest_x = std::max(x1, std::min(px, x2));
     float nearest_y = std::max(y1, std::min(py, y2));
@@ -118,7 +102,6 @@ bool ExitDoor::is_reached(float px, float py, float radius) const {
 void ExitDoor::render(bool alarm_active) const {
     drawRectLines(x1, y1, x2, y2, COLOR_WIREFRAME_WHITE);
 
-    // Diagonal chevron hatchings
     for (int sx = (int)x1 + 8; sx < (int)x2 - 8; sx += 14) {
         drawBresenhamLine(sx, (int)y1 + 3, sx + 8, (int)y2 - 3, COLOR_WIREFRAME_MED);
     }
@@ -128,9 +111,6 @@ void ExitDoor::render(bool alarm_active) const {
     outtextxy((int)mid_x - 45, (int)y1 - 15, (char*)"[ EXIT DOOR ]");
 }
 
-// ============================================================================
-// MAP ENGINE MASTER IMPLEMENTATION
-// ============================================================================
 MapEngine::MapEngine(float origin_x, float origin_y)
     : ox(origin_x), oy(origin_y), exit_door(0, 0, 0, 0) {
     build_map();
@@ -145,7 +125,7 @@ void MapEngine::build_map() {
     room_h = 2 * wt + 3 * pw + 2 * bs;
 
     walls.clear();
-    // 4 Perimeter boundary walls
+
     walls.push_back(Wall(ox, oy, ox + room_w, oy + wt, "wall_top"));
     walls.push_back(Wall(ox, oy + room_h - wt, ox + room_w, oy + room_h, "wall_bottom"));
     walls.push_back(Wall(ox, oy, ox + wt, oy + room_h, "wall_left"));
@@ -161,7 +141,6 @@ void MapEngine::build_map() {
         row_y[j] = oy + wt + pw + (float)j * (bs + pw);
     }
 
-    // 6 Crossed boxes (3 columns x 2 rows)
     for (int c = 0; c < 3; c++) {
         for (int r = 0; r < 2; r++) {
             std::ostringstream ss;
@@ -199,24 +178,21 @@ bool MapEngine::is_blocked(float cx, float cy, float radius) const {
 }
 
 void MapEngine::render(bool alarm_active) const {
-    // Outer boundary floor frame
+
     drawRectLines(ox, oy, ox + room_w, oy + room_h, COLOR_WIREFRAME_DIM);
 
-    // Walls
     for (size_t i = 0; i < walls.size(); i++) {
         walls[i].render();
     }
 
-    // Crossed boxes (crates)
     for (size_t i = 0; i < boxes.size(); i++) {
         boxes[i].render();
     }
 
-    // Exit pad
     exit_door.render(alarm_active);
 
-    // Sliding doors
     for (size_t i = 0; i < doors.size(); i++) {
         doors[i].render();
     }
 }
+

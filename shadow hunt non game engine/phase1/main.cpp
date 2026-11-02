@@ -4,16 +4,11 @@
 #include <windows.h>
 #include "game_map.h"
 
-// ============================================================================
-// WINDOW / CAMERA SETTINGS
-// Game World Size: 1800 x 1000 pixels (36 cols x 20 rows, 50px each)
-// Screen Viewport Size: 900 x 600 pixels
-// ============================================================================
 const int SCREEN_WIDTH = 900;
 const int SCREEN_HEIGHT = 600;
 
 int main() {
-    // Initialize graphics window
+
     initwindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hunter Assassin - Maze Map (Phase 1 C++)");
 
     std::cout << "============================================================" << std::endl;
@@ -31,10 +26,8 @@ int main() {
     std::cout << "   - [ESC] / [Q]       : Exit game" << std::endl;
     std::cout << "============================================================" << std::endl;
 
-    // Create Map instance
     GameMap gameMap(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    // Camera state (defaults to top-left (0, 0) matching Python main.py)
     int camera_x = 0;
     int camera_y = 0;
     const int CAM_SPEED = 12;
@@ -43,11 +36,8 @@ int main() {
     bool running = true;
     int activePage = 0;
 
-    // Game loop
     while (running) {
-        // ----------------------------------------------------
-        // INPUT HANDLING
-        // ----------------------------------------------------
+
         if ((GetAsyncKeyState(VK_ESCAPE) & 0x8000)) {
             running = false;
         }
@@ -69,7 +59,6 @@ int main() {
             camera_y = 0;
         }
 
-        // Check single keypresses via kbhit()
         if (kbhit()) {
             char ch = getch();
             if (ch == 'g' || ch == 'G') {
@@ -82,44 +71,27 @@ int main() {
             }
         }
 
-        // ----------------------------------------------------
-        // CAMERA CLAMPING
-        // Prevent viewport from going outside the 1800x1000 world
-        // ----------------------------------------------------
         if (camera_x < 0) camera_x = 0;
         if (camera_y < 0) camera_y = 0;
         if (camera_x > MAP_WIDTH - SCREEN_WIDTH) camera_x = MAP_WIDTH - SCREEN_WIDTH;
         if (camera_y > MAP_HEIGHT - SCREEN_HEIGHT) camera_y = MAP_HEIGHT - SCREEN_HEIGHT;
 
-        // ----------------------------------------------------
-        // DOUBLE BUFFERING: RENDER TO OFF-SCREEN BUFFER
-        // ----------------------------------------------------
         setactivepage(activePage);
 
-        // Clear screen with dark background (equivalent to screen.fill((30, 30, 30)))
         setfillstyle(SOLID_FILL, COLOR(30, 30, 30));
         bar(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        // ----------------------------------------------------
-        // DRAW WORLD THROUGH CAMERA VIEWPORT
-        // ----------------------------------------------------
         gameMap.draw(camera_x, camera_y, showGrid);
 
-        // ----------------------------------------------------
-        // HUD OVERLAY
-        // ----------------------------------------------------
         setcolor(COLOR_WIREFRAME);
         setbkcolor(COLOR(30, 30, 30));
         outtextxy(12, 10, (char*)"SHADOW HUNT / HUNTER ASSASSIN - PHASE 1 (C++)");
-        
+
         char hudStr[128];
         sprintf(hudStr, "Cam: (%d, %d) | WASD: Pan | [G] Grid: %s | [R] Reset | [ESC] Quit",
                 camera_x, camera_y, showGrid ? "ON" : "OFF");
         outtextxy(12, 28, hudStr);
 
-        // ----------------------------------------------------
-        // PAGE FLIP & FRAME TIMING (~60 FPS)
-        // ----------------------------------------------------
         setvisualpage(activePage);
         activePage = 1 - activePage;
 
@@ -130,3 +102,4 @@ int main() {
     std::cout << "Exited cleanly." << std::endl;
     return 0;
 }
+

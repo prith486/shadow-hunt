@@ -1,325 +1,110 @@
 import math
 import pygame
-
-from graphics   import bresenham_line, bresenham_circle
-from game_map   import CELL_SIZE
-from transforms import (
-    apply_transformation,
-    translation_matrix,
-    rotation_matrix,
-    scaling_matrix,
-    identity,
-)
-
-
-# ============================================================
-# PLAYER ENTITY
-# ============================================================
+from graphics import bresenham_line, bresenham_circle
+from game_map import CELL_SIZE
+from transforms import apply_transformation, translation_matrix, rotation_matrix, scaling_matrix, identity
 
 class Player:
 
     def __init__(self, x, y):
-
-        self.x       = float(x)
-        self.y       = float(y)
-        self.radius  = 10
-        self.speed   = 2.5
-        self.health  = 100.0
-
-        # Shield ring radius
+        self.x = float(x)
+        self.y = float(y)
+        self.radius = 10
+        self.speed = 2.5
+        self.health = 100.0
         self.shield_radius = 14
-
-        # Current transformation label (shown in HUD)
-        self.current_transform = "None"
-
-        # Facing angle in degrees — updated each frame from movement direction.
-        # Used by rotation_matrix in draw() to orient the triangle.
-        self.facing_angle = -90.0   # default: pointing UP (screen -y axis)
-
-        # Set True by main loop when any enemy detects the player.
-        # Triggers scaling_matrix pulse in draw().
+        self.current_transform = 'None'
+        self.facing_angle = -90.0
         self.is_detected = False
 
-
-    # ========================================================
-    # UPDATE (MOVEMENT VIA TRANSLATION MATRIX)
-    #
-    # Instead of directly adding dx/dy to position,
-    # we use the 2D translation matrix from transforms.py
-    # to compute the new position.  This is the core
-    # Phase 3 requirement: movement via transformation matrix.
-    # ========================================================
-
     def update(self, keys, game_map, rep_type):
-        """
-        Move the player using a 2D Translation Matrix.
-
-        The displacement vector (tx, ty) is computed from
-        key input, then a translation matrix T is built and
-        applied to the player's current position point.
-
-        rep_type : 1 = Row, 2 = Column (from C++ core)
-        """
-
         tx = 0.0
         ty = 0.0
-
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             ty -= self.speed
-
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             ty += self.speed
-
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             tx -= self.speed
-
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             tx += self.speed
-
         if tx == 0.0 and ty == 0.0:
-            self.current_transform = "None"
+            self.current_transform = 'None'
             return
-
-        self.current_transform = "Translation"
-
-        # -----------------------------------------------
-        # TRACK FACING DIRECTION (for rotation_matrix in draw)
-        # atan2(ty, tx) gives the movement angle so the triangle
-        # rotates to face wherever the player is heading.
-        # -----------------------------------------------
+        self.current_transform = 'Translation'
         self.facing_angle = math.degrees(math.atan2(ty, tx))
-
-        # ----------------------------------------------------
-        # BUILD TRANSLATION MATRIX
-        # (from phase3core.cpp: translationMatrix)
-        # ----------------------------------------------------
-
         T = translation_matrix(tx, ty, rep_type)
-
-        # ----------------------------------------------------
-        # APPLY TO CURRENT POSITION POINT
-        # (from phase3core.cpp: applyTransformation)
-        # ----------------------------------------------------
-
         result = apply_transformation(T, [(self.x, self.y)], rep_type)
         new_x, new_y = result[0]
-
-        # ----------------------------------------------------
-        # COLLISION CHECK  (same as Phase 2)
-        # ----------------------------------------------------
-
         if not self._collides(new_x, self.y, game_map):
             self.x = new_x
-
         if not self._collides(self.x, new_y, game_map):
             self.y = new_y
 
-
     def _collides(self, px, py, game_map):
-        """
-        Corner-based collision against the map grid.
-        Identical to Phase 2 check_collision.
-        """
-
         margin = self.radius
-
-        corners = [
-            (px - margin, py - margin),
-            (px + margin, py - margin),
-            (px - margin, py + margin),
-            (px + margin, py + margin),
-        ]
-
+        corners = [(px - margin, py - margin), (px + margin, py - margin), (px - margin, py + margin), (px + margin, py + margin)]
         for cx, cy in corners:
             col = int(cx // CELL_SIZE)
             row = int(cy // CELL_SIZE)
-
             if game_map.is_wall(row, col):
                 return True
-
         return False
 
-
-    # ========================================================
-    # DRAW PLAYER
-    #
-    # Triangle body (Bresenham) + shield circle.
-    # Vertices are derived by applying a rotation matrix
-    # around the player center — demonstrating rotation
-    # transformation in-game (Phase 3 requirement).
-    # ========================================================
-
     def draw(self, screen, rep_type):
-        """
-        Draw the player triangle using Bresenham lines.
-
-        Full Phase 3 transformation chain applied per frame:
-          1. scaling_matrix  — body pulses bigger + turns red when detected
-          2. rotation_matrix — triangle faces the last movement direction
-          3. translation_matrix — moves local origin to world position
-        """
-
         ix = int(round(self.x))
         iy = int(round(self.y))
-
-        # -----------------------------------------------
-        # DEFINE TRIANGLE VERTICES (relative to origin)
-        # Tip points RIGHT (+x) so rotation_matrix can
-        # freely orient it in any direction.
-        # -----------------------------------------------
-
-        local_pts = [
-            (8.0,   0.0),    # Tip  (right)
-            (-6.0, -6.0),   # Top-left
-            (-6.0,  6.0),   # Bottom-left
-        ]
-
-        # -----------------------------------------------
-        # STEP 1 — SCALING MATRIX
-        #
-        # When an enemy detects the player the triangle
-        # pulses between 1.0× and 1.5× via a sine wave,
-        # demonstrating scaling_matrix in live gameplay.
-        # -----------------------------------------------
-
+        local_pts = [(8.0, 0.0), (-6.0, -6.0), (-6.0, 6.0)]
         if self.is_detected:
             pulse = 0.25 * math.sin(pygame.time.get_ticks() * 0.008)
-            scale = 1.25 + pulse          # oscillates 1.0 – 1.5
-            draw_color = (220, 50, 50)    # red tint on alert
+            scale = 1.25 + pulse
+            draw_color = (220, 50, 50)
         else:
-            scale      = 1.0
-            draw_color = (255, 255, 255)  # white when safe
-
-        S         = scaling_matrix(scale, scale)
-        scaled    = apply_transformation(S, local_pts, rep_type)
-
-        # -----------------------------------------------
-        # STEP 2 — ROTATION MATRIX
-        #
-        # Rotate the scaled vertices to face the current
-        # movement direction (self.facing_angle updated in
-        # update() from atan2 of the input vector).
-        # -----------------------------------------------
-
-        R       = rotation_matrix(self.facing_angle, rep_type)
+            scale = 1.0
+            draw_color = (255, 255, 255)
+        S = scaling_matrix(scale, scale)
+        scaled = apply_transformation(S, local_pts, rep_type)
+        R = rotation_matrix(self.facing_angle, rep_type)
         rotated = apply_transformation(R, scaled, rep_type)
-
-        # -----------------------------------------------
-        # STEP 3 — TRANSLATION MATRIX
-        #
-        # Move rotated+scaled vertices from local origin
-        # to the player's world position.
-        # -----------------------------------------------
-
-        T   = translation_matrix(self.x, self.y, rep_type)
+        T = translation_matrix(self.x, self.y, rep_type)
         pts = apply_transformation(T, rotated, rep_type)
-
         p1 = (int(round(pts[0][0])), int(round(pts[0][1])))
         p2 = (int(round(pts[1][0])), int(round(pts[1][1])))
         p3 = (int(round(pts[2][0])), int(round(pts[2][1])))
-
-        # Draw triangle edges via Bresenham
         bresenham_line(screen, p1[0], p1[1], p2[0], p2[1], draw_color)
         bresenham_line(screen, p2[0], p2[1], p3[0], p3[1], draw_color)
         bresenham_line(screen, p3[0], p3[1], p1[0], p1[1], draw_color)
-
-        # Draw shield circle
         bresenham_circle(screen, ix, iy, self.shield_radius, draw_color)
-
-
-# ============================================================
-# ENEMY ENTITY
-# ============================================================
 
 class Enemy:
 
     def __init__(self, x, y, facing_angle_deg, sight_radius=100):
-
-        self.x                 = float(x)
-        self.y                 = float(y)
-        self.facing_angle      = float(facing_angle_deg)
-        self.sight_radius      = sight_radius
-        self.fov_half_angle    = 45.0      # +/- 45 deg cone
+        self.x = float(x)
+        self.y = float(y)
+        self.facing_angle = float(facing_angle_deg)
+        self.sight_radius = sight_radius
+        self.fov_half_angle = 45.0
         self.is_player_detected = False
         self.target_x = 0.0
         self.target_y = 0.0
-
-        # --------------------------------------------------------
-        # PATROL STATE (Phase 3 addition)
-        #
-        # Enemies now move between two waypoints using a
-        # Translation Matrix each frame.
-        # --------------------------------------------------------
-
-        # Waypoint A = starting position
         self.patrol_ax = self.x
         self.patrol_ay = self.y
-
-        # Waypoint B = offset from A (set after construction)
         self.patrol_bx = self.x
         self.patrol_by = self.y
-
-        self.patrol_speed    = 0.8
-        self.patrol_going_b  = True   # True = moving toward B
-
-        # --------------------------------------------------------
-        # ROTATION STATE (Phase 3 addition)
-        #
-        # Enemy facing angle is updated each frame to match
-        # the patrol direction using the Rotation Matrix.
-        # A small fixed rotate_speed is used for smooth
-        # interpolation toward the target angle.
-        # --------------------------------------------------------
-
-        self.rotate_speed = 3.0    # max degrees to turn per frame
-
-
-    # ========================================================
-    # WALL COLLISION CHECK  (same corner logic as Player)
-    # ========================================================
+        self.patrol_speed = 0.8
+        self.patrol_going_b = True
+        self.rotate_speed = 3.0
 
     def _collides(self, px, py, game_map):
-        """
-        4-corner AABB collision check against the map grid.
-        Identical approach to Player._collides.
-        """
-        margin = 8   # slightly smaller than player's 10
-
-        for cx, cy in [
-            (px - margin, py - margin),
-            (px + margin, py - margin),
-            (px - margin, py + margin),
-            (px + margin, py + margin),
-        ]:
+        margin = 8
+        for cx, cy in [(px - margin, py - margin), (px + margin, py - margin), (px - margin, py + margin), (px + margin, py + margin)]:
             col = int(cx // CELL_SIZE)
             row = int(cy // CELL_SIZE)
             if game_map.is_wall(row, col):
                 return True
-
         return False
 
-
-    # ========================================================
-    # UPDATE PATROL MOVEMENT  (TRANSLATION MATRIX)
-    #
-    # Each frame we build a translation matrix for
-    # a small step toward the current waypoint,
-    # apply it to (self.x, self.y), then check if we've
-    # reached the waypoint and reverse direction.
-    # Wall collision is now checked per-axis (sliding)
-    # and direction is reversed if completely blocked.
-    # ========================================================
-
     def update_patrol(self, rep_type, game_map):
-        """
-        Move enemy along patrol path using Translation Matrix
-        with wall collision detection.
-
-        rep_type  : 1 = Row, 2 = Column
-        game_map  : GameMap instance for wall checking
-        """
-
-        # Target waypoint
         if self.is_player_detected:
             tx_goal = self.target_x
             ty_goal = self.target_y
@@ -332,78 +117,30 @@ class Enemy:
             tx_goal = self.patrol_ax
             ty_goal = self.patrol_ay
             speed = self.patrol_speed
-
-        # Direction vector toward target
         dx = tx_goal - self.x
         dy = ty_goal - self.y
         dist = math.hypot(dx, dy)
-
         if dist < speed:
-            # Reached waypoint — flip direction if patrolling
             self.x = tx_goal
             self.y = ty_goal
             if not self.is_player_detected:
                 self.patrol_going_b = not self.patrol_going_b
             return
-
-        # Normalise and scale by speed
-        step_x = (dx / dist) * speed
-        step_y = (dy / dist) * speed
-
-        # --------------------------------------------------
-        # BUILD TRANSLATION MATRIX
-        # (phase3core.cpp: translationMatrix)
-        # --------------------------------------------------
-
+        step_x = dx / dist * speed
+        step_y = dy / dist * speed
         T = translation_matrix(step_x, step_y, rep_type)
-
-        # --------------------------------------------------
-        # APPLY TO CURRENT ENEMY POSITION
-        # (phase3core.cpp: applyTransformation)
-        # --------------------------------------------------
-
-        result       = apply_transformation(T, [(self.x, self.y)], rep_type)
+        result = apply_transformation(T, [(self.x, self.y)], rep_type)
         new_x, new_y = result[0]
-
-        # --------------------------------------------------
-        # WALL COLLISION  (per-axis sliding, same as Player)
-        # If both axes are blocked, reverse patrol direction.
-        # --------------------------------------------------
-
         blocked_x = self._collides(new_x, self.y, game_map)
         blocked_y = self._collides(self.x, new_y, game_map)
-
         if not blocked_x:
             self.x = new_x
         if not blocked_y:
             self.y = new_y
-
-        # If completely stuck against a wall, flip patrol direction
         if blocked_x and blocked_y:
             self.patrol_going_b = not self.patrol_going_b
 
-
-    # ========================================================
-    # UPDATE FACING ROTATION  (ROTATION MATRIX)
-    #
-    # The enemy facing angle is steered toward its patrol
-    # movement direction each frame using a Rotation Matrix.
-    # This keeps enemies facing where they walk, and
-    # demonstrates in-game rotation transformation.
-    # ========================================================
-
     def update_rotation(self, rep_type):
-        """
-        Steer enemy facing angle toward patrol movement direction
-        using the Rotation Matrix.
-
-        1. Compute target angle from patrol direction vector.
-        2. Compute angular difference (delta).
-        3. Build a rotation matrix for min(delta, rotate_speed).
-        4. Apply to current forward vector → update facing_angle.
-        """
-
-        # Target = direction toward current patrol/chase goal
         if self.is_player_detected:
             tx_goal = self.target_x
             ty_goal = self.target_y
@@ -413,71 +150,33 @@ class Enemy:
         else:
             tx_goal = self.patrol_ax
             ty_goal = self.patrol_ay
-
         goal_dx = tx_goal - self.x
         goal_dy = ty_goal - self.y
         dist = math.hypot(goal_dx, goal_dy)
-
         if dist < 1.0:
-            return   # At waypoint — no rotation needed
-
+            return
         target_angle = math.degrees(math.atan2(goal_dy, goal_dx))
-
-        # Angular difference, clamped to [-180, 180]
         delta = (target_angle - self.facing_angle + 180) % 360 - 180
-
-        # Clamp rotation step to rotate_speed per frame
         step = max(-self.rotate_speed, min(self.rotate_speed, delta))
-
         if abs(step) < 0.1:
-            return   # Already facing the right way
-
-        # --------------------------------------------------
-        # BUILD ROTATION MATRIX
-        # (phase3core.cpp: rotationMatrix)
-        # --------------------------------------------------
-
+            return
         R = rotation_matrix(step, rep_type)
-
-        # Current forward direction as a unit vector
-        rad   = math.radians(self.facing_angle)
+        rad = math.radians(self.facing_angle)
         fwd_x = math.cos(rad)
         fwd_y = math.sin(rad)
-
-        # --------------------------------------------------
-        # APPLY ROTATION MATRIX TO DIRECTION VECTOR
-        # (phase3core.cpp: applyTransformation)
-        # --------------------------------------------------
-
-        result        = apply_transformation(R, [(fwd_x, fwd_y)], rep_type)
+        result = apply_transformation(R, [(fwd_x, fwd_y)], rep_type)
         new_fx, new_fy = result[0]
-
-        # Recover angle from rotated vector
         self.facing_angle = math.degrees(math.atan2(new_fy, new_fx))
 
-
-    # ========================================================
-    # UPDATE DETECTION  (unchanged from Phase 2)
-    # ========================================================
-
     def update_detection(self, player):
-        """
-        Check if player is inside enemy FOV cone.
-        Uses Euclidean distance and angular comparison.
-        Identical to Phase 2.
-        """
-
-        dx   = player.x - self.x
-        dy   = player.y - self.y
+        dx = player.x - self.x
+        dy = player.y - self.y
         dist = math.hypot(dx, dy)
-
         if dist > self.sight_radius:
             self.is_player_detected = False
             return False
-
         angle_to_player = math.degrees(math.atan2(dy, dx))
         rel_angle = (angle_to_player - self.facing_angle + 180) % 360 - 180
-
         if abs(rel_angle) <= self.fov_half_angle:
             self.is_player_detected = True
             self.target_x = player.x
@@ -487,116 +186,38 @@ class Enemy:
             self.is_player_detected = False
             return False
 
-
-    # ========================================================
-    # DRAW ENEMY
-    #
-    # Triangle body (facing direction) + FOV cone arcs.
-    # The triangle vertices are computed by applying a
-    # rotation matrix (about center) + translation matrix
-    # to move into world space — both Phase 3 transformations.
-    # ========================================================
-
     def draw(self, screen, rep_type):
-        """
-        Draw enemy using Bresenham lines.
-
-        The enemy triangle body is built from local vertices,
-        rotated to the facing angle via rotation matrix,
-        then translated to world position via translation matrix.
-        The FOV cone rays are computed similarly.
-        """
-
-        ix    = int(round(self.x))
-        iy    = int(round(self.y))
+        ix = int(round(self.x))
+        iy = int(round(self.y))
         color = (255, 255, 255)
-
-        # -----------------------------------------------
-        # TRIANGLE BODY
-        #
-        # Local vertices (facing right, angle = 0):
-        #   tip     = (10, 0)
-        #   left    = (-8, -8)
-        #   right   = (-8,  8)
-        # -----------------------------------------------
-
-        local_body = [
-            (10.0,  0.0),
-            (-8.0, -8.0),
-            (-8.0,  8.0),
-        ]
-
-        # -----------------------------------------------
-        # STEP 1 — SCALING MATRIX
-        #
-        # When this enemy detects the player, scale the
-        # body up to 1.3× to give a visual alert cue.
-        # Demonstrates scaling_matrix in live gameplay.
-        # -----------------------------------------------
-
+        local_body = [(10.0, 0.0), (-8.0, -8.0), (-8.0, 8.0)]
         scale = 1.3 if self.is_player_detected else 1.0
-        S     = scaling_matrix(scale, scale)
+        S = scaling_matrix(scale, scale)
         scaled_body = apply_transformation(S, local_body, rep_type)
-
-        # -----------------------------------------------
-        # STEP 2 — ROTATION MATRIX
-        # -----------------------------------------------
-
-        R            = rotation_matrix(self.facing_angle, rep_type)
+        R = rotation_matrix(self.facing_angle, rep_type)
         rotated_body = apply_transformation(R, scaled_body, rep_type)
-
-        # -----------------------------------------------
-        # STEP 3 — TRANSLATION MATRIX
-        # -----------------------------------------------
-
-        T          = translation_matrix(self.x, self.y, rep_type)
+        T = translation_matrix(self.x, self.y, rep_type)
         world_body = apply_transformation(T, rotated_body, rep_type)
-
         p0 = (int(round(world_body[0][0])), int(round(world_body[0][1])))
         p1 = (int(round(world_body[1][0])), int(round(world_body[1][1])))
         p2 = (int(round(world_body[2][0])), int(round(world_body[2][1])))
-
-        # Draw triangle edges
         bresenham_line(screen, p0[0], p0[1], p1[0], p1[1], color)
         bresenham_line(screen, p1[0], p1[1], p2[0], p2[1], color)
         bresenham_line(screen, p2[0], p2[1], p0[0], p0[1], color)
-
-        # -----------------------------------------------
-        # FOV CONE RAYS
-        # -----------------------------------------------
-
-        left_angle_rad  = math.radians(self.facing_angle - self.fov_half_angle)
+        left_angle_rad = math.radians(self.facing_angle - self.fov_half_angle)
         right_angle_rad = math.radians(self.facing_angle + self.fov_half_angle)
-
         lx = ix + int(self.sight_radius * math.cos(left_angle_rad))
         ly = iy + int(self.sight_radius * math.sin(left_angle_rad))
-
         rx = ix + int(self.sight_radius * math.cos(right_angle_rad))
         ry = iy + int(self.sight_radius * math.sin(right_angle_rad))
-
         bresenham_line(screen, ix, iy, lx, ly, color)
         bresenham_line(screen, ix, iy, rx, ry, color)
-
-        # -----------------------------------------------
-        # FOV ARC  (16 segments)
-        # -----------------------------------------------
-
         steps = 16
-
         for i in range(steps):
-
-            a1 = math.radians(
-                self.facing_angle - self.fov_half_angle
-                + (i       * 90.0 / steps)
-            )
-            a2 = math.radians(
-                self.facing_angle - self.fov_half_angle
-                + ((i + 1) * 90.0 / steps)
-            )
-
+            a1 = math.radians(self.facing_angle - self.fov_half_angle + i * 90.0 / steps)
+            a2 = math.radians(self.facing_angle - self.fov_half_angle + (i + 1) * 90.0 / steps)
             x1 = ix + int(self.sight_radius * math.cos(a1))
             y1 = iy + int(self.sight_radius * math.sin(a1))
             x2 = ix + int(self.sight_radius * math.cos(a2))
             y2 = iy + int(self.sight_radius * math.sin(a2))
-
             bresenham_line(screen, x1, y1, x2, y2, color)

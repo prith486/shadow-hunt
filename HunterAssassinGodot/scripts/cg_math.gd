@@ -1,20 +1,17 @@
 class_name CGMath
 extends RefCounted
 
-
 static func translate_points(points: Array, offset: Vector2) -> Array:
 	var result: Array = []
 	for point in points:
 		result.append(point + offset)
 	return result
 
-
 static func rotate_points(points: Array, angle: float, center: Vector2 = Vector2.ZERO) -> Array:
 	var result: Array = []
 	for point in points:
 		result.append(center + (point - center).rotated(angle))
 	return result
-
 
 static func scale_points(
 	points: Array, scale_factor: float, center: Vector2 = Vector2.ZERO
@@ -23,7 +20,6 @@ static func scale_points(
 	for point in points:
 		result.append(center + (point - center) * scale_factor)
 	return result
-
 
 static func bresenham_circle(center: Vector2i, radius: int) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -59,7 +55,6 @@ static func bresenham_circle(center: Vector2i, radius: int) -> Array[Vector2i]:
 		result.append(point)
 	return result
 
-
 static func point_in_polygon(point: Vector2, polygon: PackedVector2Array) -> bool:
 	if polygon.size() < 3:
 		return false
@@ -79,7 +74,6 @@ static func point_in_polygon(point: Vector2, polygon: PackedVector2Array) -> boo
 		previous = current
 	return inside
 
-
 static func cone_polygon(
 	origin: Vector2, facing: float, fov: float, length: float, arc_steps: int = 16
 ) -> PackedVector2Array:
@@ -88,7 +82,6 @@ static func cone_polygon(
 		var angle := facing - fov * 0.5 + fov * float(index) / float(arc_steps)
 		points.append(origin + Vector2(cos(angle), sin(angle)) * length)
 	return points
-
 
 static func clip_line_cohen_sutherland(from: Vector2, to: Vector2, bounds: Rect2) -> Dictionary:
 	var x_min := bounds.position.x
@@ -134,7 +127,6 @@ static func clip_line_cohen_sutherland(from: Vector2, to: Vector2, bounds: Rect2
 			code2 = _out_code(x2, y2, x_min, y_min, x_max, y_max)
 	return {"hit": false}
 
-
 static func clip_polygon_aabb(polygon: PackedVector2Array, bounds: Rect2) -> PackedVector2Array:
 	var output := polygon
 	for edge in range(4):
@@ -155,7 +147,6 @@ static func clip_polygon_aabb(polygon: PackedVector2Array, bounds: Rect2) -> Pac
 		output = clipped
 	return output
 
-
 static func _out_code(
 	x: float, y: float, x_min: float, y_min: float, x_max: float, y_max: float
 ) -> int:
@@ -170,7 +161,6 @@ static func _out_code(
 		code |= 4
 	return code
 
-
 static func _inside_edge(point: Vector2, edge: int, bounds: Rect2) -> bool:
 	if edge == 0:
 		return point.x >= bounds.position.x
@@ -179,7 +169,6 @@ static func _inside_edge(point: Vector2, edge: int, bounds: Rect2) -> bool:
 	if edge == 2:
 		return point.y >= bounds.position.y
 	return point.y <= bounds.end.y
-
 
 static func _edge_intersection(from: Vector2, to: Vector2, edge: int, bounds: Rect2) -> Vector2:
 	var delta := to - from
@@ -192,3 +181,4 @@ static func _edge_intersection(from: Vector2, to: Vector2, edge: int, bounds: Re
 	var y := bounds.position.y if edge == 2 else bounds.end.y
 	var x := from.x + delta.x * (y - from.y) / delta.y if not is_zero_approx(delta.y) else from.x
 	return Vector2(x, y)
+

@@ -2,13 +2,10 @@
 #include <cmath>
 #include <cstdio>
 
-// ============================================================================
-// PLAYER IMPLEMENTATION
-// ============================================================================
 Player::Player(float start_x, float start_y, float spd)
     : x(start_x), y(start_y), speed(spd),
       max_health(100.0f), health(100.0f), radius(15.0f), angle(0.0f) {
-    // Triangular stealth operative geometry
+
     local_body_triangle.push_back(Point(16.0f, 0.0f));
     local_body_triangle.push_back(Point(-12.0f, -11.0f));
     local_body_triangle.push_back(Point(-6.0f, 0.0f));
@@ -35,7 +32,7 @@ void Player::heal(float amount) {
 
 void Player::render(bool show_hitbox) const {
     if (!is_alive()) {
-        // Skull / eliminated marker
+
         drawBresenhamLine((int)x - 10, (int)y - 10, (int)x + 10, (int)y + 10, COLOR_WIREFRAME_MED);
         drawBresenhamLine((int)x - 10, (int)y + 10, (int)x + 10, (int)y - 10, COLOR_WIREFRAME_MED);
         return;
@@ -44,16 +41,13 @@ void Player::render(bool show_hitbox) const {
     std::vector<Point> body_world  = get_transformed_vertices(local_body_triangle);
     std::vector<Point> inner_world = get_transformed_vertices(local_inner_triangle);
 
-    // Hitbox circle (Midpoint Circle algorithm from assign2.cpp)
     if (show_hitbox) {
         drawMidpointCircle((int)std::round(x), (int)std::round(y), (int)std::round(radius), COLOR_WIREFRAME_DIM);
     }
 
-    // Outer & inner stealth operative body
     drawWireframePolygon(CGMath::toScreenPoints(body_world), COLOR_WIREFRAME_WHITE);
     drawWireframePolygon(CGMath::toScreenPoints(inner_world), COLOR_WIREFRAME_LIGHT);
 
-    // Head indicator crosshair
     if (!body_world.empty()) {
         int hx = (int)std::round(body_world[0].x);
         int hy = (int)std::round(body_world[0].y);
@@ -61,7 +55,6 @@ void Player::render(bool show_hitbox) const {
         drawBresenhamLine(hx, hy - 2, hx, hy + 2, COLOR_WIREFRAME_WHITE);
     }
 
-    // Health bar lines
     float bar_w = 26.0f;
     float bar_h = 3.5f;
     float bx = x - 13.0f;
@@ -76,9 +69,6 @@ void Player::render(bool show_hitbox) const {
     }
 }
 
-// ============================================================================
-// ENEMY IMPLEMENTATION
-// ============================================================================
 Enemy::Enemy(const std::vector<Point>& path_points, bool shielded, float spd)
     : path(path_points), is_shielded(shielded), speed(spd), radius(15.0f),
       is_alive(true), angle(0.0f), shoot_cooldown_max(35), shoot_timer(0),
@@ -158,45 +148,36 @@ std::string Enemy::check_player_contact(Player& player) {
 
 void Enemy::render(bool show_hitbox) const {
     if (!is_alive) {
-        // Eliminated X marker
+
         drawBresenhamLine((int)x - 8, (int)y - 8, (int)x + 8, (int)y + 8, COLOR_WIREFRAME_DARK);
         drawBresenhamLine((int)x - 8, (int)y + 8, (int)x + 8, (int)y - 8, COLOR_WIREFRAME_DARK);
         return;
     }
 
-    // Vision cone polygon
     int cone_color = is_alert ? COLOR_WIREFRAME_WHITE : COLOR_CONE_DIM;
     drawWireframePolygon(CGMath::toScreenPoints(vision_polygon), cone_color);
 
-    // Laser beam line (if currently firing)
     if (has_laser) {
         drawBresenhamLine((int)x, (int)y, (int)laser_target.x, (int)laser_target.y, COLOR_WIREFRAME_WHITE);
     }
 
-    // Hitbox circle (Midpoint Circle algorithm from assign2.cpp)
     if (show_hitbox) {
         drawMidpointCircle((int)std::round(x), (int)std::round(y), (int)std::round(radius), COLOR_WIREFRAME_MED);
     }
 
-    // Transformed body
     std::vector<Point> world_body = CGMath::translate(CGMath::rotate(local_triangle, angle, 0.0f, 0.0f), x, y);
     drawWireframePolygon(CGMath::toScreenPoints(world_body), COLOR_WIREFRAME_LIGHT);
 
-    // Shield arc if shielded
     if (is_shielded && !local_shield_arc.empty()) {
         std::vector<Point> shield_pts = CGMath::translate(CGMath::rotate(local_shield_arc, angle, 0.0f, 0.0f), x, y);
         drawPolyLine(CGMath::toScreenPoints(shield_pts), COLOR_WIREFRAME_WHITE);
     }
 
-    // Label
     setcolor(COLOR_WIREFRAME_MED);
     setbkcolor(BLACK);
     outtextxy((int)x - 20, (int)y - 22, is_shielded ? (char*)"SHIELDED" : (char*)"GUARD");
 }
 
-// ============================================================================
-// SECURITY CAMERA IMPLEMENTATION
-// ============================================================================
 SecurityCamera::SecurityCamera(float cx, float cy, float base_ang, float sweep_amp, float sweep_spd,
                                float fov_ang, float cone_r)
     : x(cx), y(cy), base_angle(base_ang), sweep_amplitude(sweep_amp), sweep_speed(sweep_spd),
@@ -222,15 +203,11 @@ void SecurityCamera::render(bool alarm_active) const {
     int cone_color = (alarm_active || is_alarm_triggered) ? COLOR_WIREFRAME_WHITE : COLOR_CONE_DIM;
     drawWireframePolygon(CGMath::toScreenPoints(vision_polygon), cone_color);
 
-    // Camera Lens line
     float lx = x + 16.0f * std::cos(current_angle);
     float ly = y + 16.0f * std::sin(current_angle);
     drawBresenhamLine((int)x, (int)y, (int)lx, (int)ly, COLOR_WIREFRAME_MED);
 }
 
-// ============================================================================
-// COIN IMPLEMENTATION
-// ============================================================================
 Coin::Coin(float _x, float _y, float r)
     : x(_x), y(_y), base_radius(r) {
     int num_segments = 16;
@@ -248,9 +225,6 @@ void Coin::render() const {
     drawWireframePolygon(CGMath::toScreenPoints(base_polygon), COLOR_WIREFRAME_LIGHT);
 }
 
-// ============================================================================
-// HEALTH KIT IMPLEMENTATION
-// ============================================================================
 HealthKit::HealthKit(float _x, float _y, float size)
     : x(_x), y(_y), radius(size / 2.0f) {
     float hw = 2.5f;
@@ -285,9 +259,6 @@ void HealthKit::render() const {
     drawWireframePolygon(CGMath::toScreenPoints(base_plus), COLOR_WIREFRAME_WHITE);
 }
 
-// ============================================================================
-// COLLECTIBLE MANAGER IMPLEMENTATION
-// ============================================================================
 CollectibleManager::CollectibleManager() {}
 
 void CollectibleManager::populate_map(const MapEngine& map_engine) {
@@ -317,7 +288,6 @@ void CollectibleManager::populate_map(const MapEngine& map_engine) {
         ox + wt + 3.0f * pw + 2.5f * bs
     };
 
-    // 7 Coins
     coins.push_back(Coin(box_col_centers[0], row_centers[0]));
     coins.push_back(Coin(box_col_centers[1], row_centers[0]));
     coins.push_back(Coin(box_col_centers[2], row_centers[0]));
@@ -326,7 +296,6 @@ void CollectibleManager::populate_map(const MapEngine& map_engine) {
     coins.push_back(Coin(box_col_centers[1], row_centers[2]));
     coins.push_back(Coin(box_col_centers[2], row_centers[2]));
 
-    // 3 MedKits
     health_kits.push_back(HealthKit(col_centers[0], row_centers[1]));
     health_kits.push_back(HealthKit(col_centers[1], row_centers[1]));
     health_kits.push_back(HealthKit(col_centers[2], row_centers[1]));
@@ -362,3 +331,4 @@ void CollectibleManager::render() const {
         health_kits[i].render();
     }
 }
+

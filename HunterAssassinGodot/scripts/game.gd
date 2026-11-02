@@ -21,7 +21,6 @@ const HIDE_LIMIT_SECONDS := 10.0
 const GLASS_NOISE_INTENSITY := 100.0
 const GLASS_NOISE_RADIUS := 1400.0
 
-# Operative & Combat Parity Constants (imp.md & HunterAssassinUnity)
 const PLAYER_MAX_HEALTH := 100.0
 const BOLT_DAMAGE := 20.0
 const BOLT_COOLDOWN := 0.28
@@ -29,18 +28,18 @@ const BOLT_SPEED := 720.0
 const BOLT_RADIUS := 7.0
 const BOLT_MAX_LIFETIME := 1.4
 const FLASHLIGHT_RANGE := 175.0
-const FLASHLIGHT_FOV := 1.2217 # 70 degrees
+const FLASHLIGHT_FOV := 1.2217
 const SPRINT_NOISE_RADIUS := 160.0
 const JUMP_HOP_HEIGHT := 12.0
 const ENFORCER_SHIELD_ARC_RADIUS := 31.45
-const ENFORCER_SHIELD_HALF_ANGLE := 1.1 # ~63 deg each side, 126 deg total arc
+const ENFORCER_SHIELD_HALF_ANGLE := 1.1
 const ENFORCER_SHOVE_SPEED := 220.0
 const GUARD_PATROL_SPEED := 75.0
 const GUARD_CONE_RANGE := 165.0
-const GUARD_CONE_FOV := 1.5708 # 90 degrees
+const GUARD_CONE_FOV := 1.5708
 const ENFORCER_PATROL_SPEED := 70.0
 const ENFORCER_CONE_RANGE := 140.0
-const ENFORCER_CONE_FOV := 1.5708 # 90 degrees
+const ENFORCER_CONE_FOV := 1.5708
 
 var world_size := Vector2.ZERO
 var level_index := 0
@@ -145,7 +144,6 @@ var microphone_meter: ProgressBar
 var microphone_status_label: Label
 var transition_overlay: ColorRect
 
-
 func _ready() -> void:
 	_configure_inputs()
 	_load_art()
@@ -156,7 +154,6 @@ func _ready() -> void:
 	_run_math_checks()
 	_update_ui()
 	queue_redraw()
-
 
 func _process(delta: float) -> void:
 	elapsed += delta
@@ -175,7 +172,6 @@ func _process(delta: float) -> void:
 			_retry_level()
 	_update_ui()
 	queue_redraw()
-
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -201,7 +197,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		_continue_level()
 		get_viewport().set_input_as_handled()
 
-
 func _configure_inputs() -> void:
 	_add_key_action("move_up", [KEY_W, KEY_UP])
 	_add_key_action("move_down", [KEY_S, KEY_DOWN])
@@ -215,7 +210,6 @@ func _configure_inputs() -> void:
 	_add_key_action("restart", [KEY_R])
 	_add_key_action("continue_level", [KEY_ENTER, KEY_KP_ENTER])
 
-
 func _add_key_action(action_name: String, keycodes: Array[int]) -> void:
 	if not InputMap.has_action(action_name):
 		InputMap.add_action(action_name)
@@ -223,7 +217,6 @@ func _add_key_action(action_name: String, keycodes: Array[int]) -> void:
 		var key_event := InputEventKey.new()
 		key_event.physical_keycode = code
 		InputMap.action_add_event(action_name, key_event)
-
 
 func _load_art() -> void:
 	var categories := {
@@ -241,7 +234,6 @@ func _load_art() -> void:
 					frames.append(load(path) as Texture2D)
 			art_frames["%s/%s" % [kind, state]] = frames
 
-	# Unity Boss character
 	var boss_path := "res://assets/Characters/Boss/boss.png"
 	if ResourceLoader.exists(boss_path):
 		var boss_tex: Texture2D = load(boss_path) as Texture2D
@@ -251,7 +243,6 @@ func _load_art() -> void:
 		art_frames["boss/attack"] = [boss_tex]
 		art_frames["boss/death"] = [boss_tex]
 
-	# Nightmare stage (Mommy)
 	_load_wraith_frames()
 	if not art_frames.has("mommy/idle"):
 		var mommy_path := "res://assets/Characters/Mommy_cutout.png"
@@ -300,7 +291,6 @@ func _load_art() -> void:
 		var resource_path := "res://assets/%s" % coin_path
 		if ResourceLoader.exists(resource_path):
 			textures[coin_path] = load(resource_path) as Texture2D
-
 
 func _setup_audio() -> void:
 	for index in range(8):
@@ -359,8 +349,6 @@ func _setup_audio() -> void:
 	alarm_stream.loop_end = int(alarm_stream.data.size() / 2)
 	sound_streams["alarm"] = alarm_stream
 
-
-
 func _load_wraith_frames() -> void:
 	var animations := {
 		"idle": ["Idle", "Wraith_03_Idle", 12],
@@ -406,7 +394,6 @@ func _make_heartbeat_stream() -> AudioStreamWAV:
 	stream.loop_end = sample_count
 	return stream
 
-
 func _start_level3_audio() -> void:
 	mommy_voice_stage = -1
 	mommy_voice_time_left = 0.0
@@ -416,7 +403,6 @@ func _start_level3_audio() -> void:
 	mommy_heartbeat_player.stream = _make_heartbeat_stream()
 	_tick_level3_audio(0.0)
 	_set_microphone_enabled(true)
-
 
 func _tick_level3_audio(delta: float) -> void:
 	if not mommy_music_player.playing and mommy_music_player.stream != null:
@@ -442,7 +428,6 @@ func _tick_level3_audio(delta: float) -> void:
 	elif mommy_heartbeat_player.playing:
 		mommy_heartbeat_player.stop()
 
-
 func _stop_level3_audio() -> void:
 	mommy_music_player.stop()
 	mommy_voice_player.stop()
@@ -451,7 +436,6 @@ func _stop_level3_audio() -> void:
 	mommy_voice_time_left = 0.0
 	suspense_alert_active = false
 	_set_microphone_enabled(false)
-
 
 func _set_microphone_enabled(enabled: bool) -> void:
 	if enabled == microphone_enabled:
@@ -503,7 +487,6 @@ func _set_microphone_enabled(enabled: bool) -> void:
 	if is_instance_valid(microphone_toggle):
 		microphone_toggle.set_pressed_no_signal(true)
 
-
 func _update_microphone(delta: float = 0.016) -> void:
 	if not microphone_enabled or microphone_capture == null:
 		voice_level_percent = 0.0
@@ -526,7 +509,6 @@ func _update_microphone(delta: float = 0.016) -> void:
 		voice_level_percent = maxf(measured_level, voice_level_percent - delta * 15.0)
 	_update_voice_detection(delta)
 
-
 func _measure_voice_level(samples: PackedVector2Array) -> float:
 	if samples.is_empty():
 		return 0.0
@@ -534,7 +516,6 @@ func _measure_voice_level(samples: PackedVector2Array) -> float:
 	for sample in samples:
 		squared_total += sample.length_squared() * 0.5
 	return clampf(sqrt(squared_total / float(samples.size())) * MIC_LEVEL_GAIN, 0.0, 100.0)
-
 
 func _update_voice_detection(delta: float = 0.016) -> void:
 	var is_loud := voice_level_percent >= MIC_ALERT_THRESHOLD
@@ -553,7 +534,6 @@ func _update_voice_detection(delta: float = 0.016) -> void:
 		_emit_noise("MICROPHONE", player_position, voice_level_percent, GLASS_NOISE_RADIUS)
 		mic_voice_cooldown = 0.35
 	mic_was_loud = true
-
 
 func _make_tone(
 	start_frequency: float,
@@ -586,7 +566,6 @@ func _make_tone(
 	stream.data = data
 	return stream
 
-
 func _play_sfx(name: String) -> void:
 	if not sound_streams.has(name) or audio_players.is_empty():
 		return
@@ -594,7 +573,6 @@ func _play_sfx(name: String) -> void:
 	audio_cursor = (audio_cursor + 1) % audio_players.size()
 	player.stream = sound_streams[name]
 	player.play()
-
 
 func _build_level(index: int) -> void:
 	level_index = clampi(index, 0, MOMMY_LEVEL_INDEX)
@@ -1334,7 +1312,6 @@ func _build_level(index: int) -> void:
 	camera.position = ORIGIN + world_size * 0.5
 	_update_camera(true)
 
-
 func _tick_game(delta: float) -> void:
 	melee_cooldown = maxf(0.0, melee_cooldown - delta)
 	fire_cooldown = maxf(0.0, fire_cooldown - delta)
@@ -1440,7 +1417,6 @@ func _tick_game(delta: float) -> void:
 	elif level_index == MOMMY_LEVEL_INDEX and _exit_reached():
 		_win(true, 0)
 
-
 func _move_player(delta_position: Vector2) -> void:
 	if player_hidden:
 		return
@@ -1450,7 +1426,6 @@ func _move_player(delta_position: Vector2) -> void:
 	var target_y := player_position + Vector2(0, delta_position.y)
 	if not _position_blocked(target_y, PLAYER_RADIUS):
 		player_position.y = target_y.y
-
 
 func _position_blocked(point: Vector2, radius: float) -> bool:
 	for rect in walls:
@@ -1463,7 +1438,6 @@ func _position_blocked(point: Vector2, radius: float) -> bool:
 		if _door_blocks_circle(door, point, radius):
 			return true
 	return false
-
 
 func _random_walkable_position(
 	radius: float, avoid_position: Vector2 = Vector2.ZERO, minimum_distance: float = 0.0
@@ -1488,19 +1462,16 @@ func _random_walkable_position(
 		return candidate
 	return player_position
 
-
 func _circle_rect(point: Vector2, radius: float, rect: Rect2) -> bool:
 	var closest := Vector2(
 		clampf(point.x, rect.position.x, rect.end.x), clampf(point.y, rect.position.y, rect.end.y)
 	)
 	return point.distance_squared_to(closest) <= radius * radius
 
-
 func _door_segment(door: Dictionary) -> Array[Vector2]:
 	var a: Vector2 = door.a
 	var b: Vector2 = door.b
 	return [a, a.lerp(b, 1.0 - float(door.progress))]
-
 
 func _door_blocks_circle(door: Dictionary, point: Vector2, radius: float) -> bool:
 	if bool(door.get("broken", false)):
@@ -1510,7 +1481,6 @@ func _door_blocks_circle(door: Dictionary, point: Vector2, radius: float) -> boo
 	var segment := _door_segment(door)
 	return _distance_to_segment(point, segment[0], segment[1]) <= radius + 2.5
 
-
 func _distance_to_segment(point: Vector2, start: Vector2, end: Vector2) -> float:
 	var segment := end - start
 	var length_squared := segment.length_squared()
@@ -1518,7 +1488,6 @@ func _distance_to_segment(point: Vector2, start: Vector2, end: Vector2) -> float
 		return point.distance_to(start)
 	var t := clampf((point - start).dot(segment) / length_squared, 0.0, 1.0)
 	return point.distance_to(start + t * segment)
-
 
 func _update_doors(delta: float) -> void:
 	for door in doors:
@@ -1571,7 +1540,6 @@ func _update_doors(delta: float) -> void:
 		if bool(door.get("quiet_opening", false)) and float(door.progress) >= 1.0:
 			door.quiet_opening = false
 
-
 func _interact_with_glass_door() -> void:
 	var closest_door: Dictionary = {}
 	var closest_distance := 110.0
@@ -1587,7 +1555,6 @@ func _interact_with_glass_door() -> void:
 	closest_door.quiet_opening = true
 	closest_door.open = true
 
-
 func _shatter_glass_door(door: Dictionary) -> void:
 	if bool(door.get("broken", false)):
 		return
@@ -1599,7 +1566,6 @@ func _shatter_glass_door(door: Dictionary) -> void:
 	glass_debris.append({"pos": threshold, "timer": 0.0, "crunched": false})
 	_emit_noise("GLASS_SHATTER", threshold, GLASS_NOISE_INTENSITY, GLASS_NOISE_RADIUS)
 	_play_sfx("glass_shatter")
-
 
 func _update_glass_debris(delta: float) -> void:
 	var movement := Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -1614,7 +1580,6 @@ func _update_glass_debris(delta: float) -> void:
 			_emit_noise("GLASS_CRUNCH", player_position, 48.0)
 			_play_sfx("glass_crunch")
 			debris.timer = 1.0
-
 
 func _handle_player_attack() -> void:
 	if level_index == MOMMY_LEVEL_INDEX:
@@ -1634,7 +1599,6 @@ func _handle_player_attack() -> void:
 		_play_sfx("laser")
 	if melee_cooldown <= 0.0:
 		_swing_melee()
-
 
 func _update_player_bolts(delta: float) -> void:
 	for index in range(player_bolts.size() - 1, -1, -1):
@@ -1679,13 +1643,11 @@ func _update_player_bolts(delta: float) -> void:
 		else:
 			bolt.pos = to_pos
 
-
 func _update_active_lasers(delta: float) -> void:
 	for i in range(active_lasers.size() - 1, -1, -1):
 		active_lasers[i].timer = float(active_lasers[i].timer) - delta
 		if float(active_lasers[i].timer) <= 0.0:
 			active_lasers.remove_at(i)
-
 
 func _swing_melee() -> void:
 	melee_cooldown = 0.48
@@ -1714,7 +1676,6 @@ func _swing_melee() -> void:
 		_damage_enemy(index, PLAYER_MELEE_DAMAGE)
 	_play_sfx("impact")
 
-
 func _toggle_hide_spot(mouse_position: Vector2) -> void:
 	if exit_rect.has_point(mouse_position):
 		return
@@ -1742,7 +1703,6 @@ func _toggle_hide_spot(mouse_position: Vector2) -> void:
 			sprint_noise = false
 			player_anim = "idle"
 			return
-
 
 func _update_enemies(delta: float) -> void:
 	for index in range(enemies.size()):
@@ -1830,7 +1790,7 @@ func _update_enemies(delta: float) -> void:
 				enemy.last_seen = player_position
 				enemy.pursuit_timer = PURSUIT_SECONDS
 			else:
-				# Mommy is blind and player made no direct contact/line-of-sight: pursuit timer ticks down toward search
+
 				enemy.pursuit_timer = maxf(0.0, float(enemy.pursuit_timer) - delta)
 				if float(enemy.pursuit_timer) <= 0.0:
 					enemy.mom_pursuing = false
@@ -1925,7 +1885,7 @@ func _update_enemies(delta: float) -> void:
 					enemy.pursuit_timer = 0.0
 					enemy.alert = false
 					enemy.mom_search_cooldown = 5.0
-					# Pick a different room immediately so Mommy walks away
+
 					var cur_rm := _house_room_at(enemy.pos)
 					var p_order: Array = enemy.get("mom_patrol_order", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 					var p_idx := int(enemy.get("mom_patrol_index", 0))
@@ -1959,7 +1919,7 @@ func _update_enemies(delta: float) -> void:
 				if is_mommy and Vector2(enemy.pos).distance_to(prev_pos) < 0.2:
 					enemy.mom_stuck_timer = float(enemy.get("mom_stuck_timer", 0.0)) + delta
 					if float(enemy.mom_stuck_timer) >= 0.2:
-						# Nudge toward movement target or portal
+
 						var side := Vector2(-difference.normalized().y, difference.normalized().x)
 						_move_enemy_toward(enemy, side * speed * 0.7 * delta)
 				else:
@@ -2004,7 +1964,6 @@ func _update_enemies(delta: float) -> void:
 		else:
 			enemy.anim_time = 0.0
 
-
 func _patrol_mommy(enemy: Dictionary, delta: float) -> void:
 	var room_waypoints: Array[Vector2] = [
 		Vector2(105, 55),
@@ -2047,7 +2006,6 @@ func _patrol_mommy(enemy: Dictionary, delta: float) -> void:
 	else:
 		enemy.mom_stuck_timer = 0.0
 	enemy.anim = "walk"
-
 
 func _mommy_navigation_target(enemy: Dictionary, target: Vector2) -> Vector2:
 	var current_room := _house_room_at(enemy.pos)
@@ -2096,7 +2054,6 @@ func _mommy_navigation_target(enemy: Dictionary, target: Vector2) -> Vector2:
 			return through_point
 		return approach
 
-
 func _house_room_center(room_index: int) -> Vector2:
 	var centers := [
 		Vector2(100, 55),
@@ -2112,7 +2069,6 @@ func _house_room_center(room_index: int) -> Vector2:
 	]
 	return ORIGIN + centers[clampi(room_index, 0, centers.size() - 1)]
 
-
 func _mommy_discovers_hide_spot() -> void:
 	mommy_knows_hidden_spot = true
 	mommy_known_hide_position = player_position
@@ -2125,7 +2081,6 @@ func _mommy_discovers_hide_spot() -> void:
 			enemy.mom_waiting = false
 			enemy.alert = true
 			break
-
 
 func _house_room_at(position: Vector2) -> int:
 	var local_position := position - ORIGIN
@@ -2144,7 +2099,6 @@ func _house_room_at(position: Vector2) -> int:
 	elif local_position.y < 268.0:
 		room_index = 6
 	return room_index
-
 
 func _update_boss_roaming(enemy: Dictionary, delta: float) -> void:
 	enemy.flash = maxf(0.0, float(enemy.flash) - delta)
@@ -2227,7 +2181,6 @@ func _update_boss_roaming(enemy: Dictionary, delta: float) -> void:
 	enemy.anim = ("attack" if fired else ("run" if float(enemy.boss_run_timer) > 0.0 else "walk"))
 	enemy.anim_time = float(enemy.anim_time) + delta
 
-
 func _spawn_enemy_bullet(
 	enemy: Dictionary, direction: Vector2, damage: float, speed: float, shielded: bool
 ) -> void:
@@ -2243,7 +2196,6 @@ func _spawn_enemy_bullet(
 			"age": 0.0
 		}
 	)
-
 
 func _update_enemy_bullets(delta: float) -> void:
 	for index in range(enemy_bullets.size() - 1, -1, -1):
@@ -2271,7 +2223,6 @@ func _update_enemy_bullets(delta: float) -> void:
 		else:
 			bullet.pos = to
 
-
 func _segment_closest_point(start: Vector2, end: Vector2, point: Vector2) -> Vector2:
 	var segment := end - start
 	if segment.length_squared() <= 0.000001:
@@ -2279,7 +2230,6 @@ func _segment_closest_point(start: Vector2, end: Vector2, point: Vector2) -> Vec
 	return (
 		start + segment * clampf((point - start).dot(segment) / segment.length_squared(), 0.0, 1.0)
 	)
-
 
 func _move_enemy_toward(
 	enemy: Dictionary, movement: Vector2, collision_radius: float = ENEMY_RADIUS
@@ -2290,7 +2240,6 @@ func _move_enemy_toward(
 	var target_y: Vector2 = enemy.pos + Vector2(0.0, movement.y)
 	if not _position_blocked(target_y, collision_radius):
 		enemy.pos.y = target_y.y
-
 
 func _patrol_enemy(enemy: Dictionary, delta: float) -> void:
 	var path: Array = enemy.path
@@ -2317,12 +2266,10 @@ func _patrol_enemy(enemy: Dictionary, delta: float) -> void:
 		enemy.pos += difference.normalized() * step
 		enemy.anim = "walk"
 
-
 func _vision_contains(
 	origin: Vector2, angle: float, fov: float, distance: float, target: Vector2, rays: int
 ) -> bool:
 	return CG.point_in_polygon(target, CG.cone_polygon(origin, angle, fov, distance, rays))
-
 
 func _update_camera(snap: bool = false) -> void:
 	var camera := get_node_or_null("Camera2D") as Camera2D
@@ -2349,7 +2296,6 @@ func _update_camera(snap: bool = false) -> void:
 			target, clampf(camera.position_smoothing_speed * get_process_delta_time(), 0.0, 1.0)
 		)
 
-
 func _bresenham_contact(
 	hitbox_center: Vector2, hitbox_radius: float, target_center: Vector2, target_radius: float
 ) -> bool:
@@ -2363,10 +2309,8 @@ func _bresenham_contact(
 			return true
 	return center_distance + target_radius <= hitbox_radius
 
-
 func _turn_toward(current: float, target: float, max_step: float) -> float:
 	return current + clampf(wrapf(target - current, -PI, PI), -max_step, max_step)
-
 
 func _propagate_noise(delta: float) -> void:
 	for event_index in range(noise_events.size() - 1, -1, -1):
@@ -2402,7 +2346,7 @@ func _propagate_noise(delta: float) -> void:
 			)
 			if bool(enemy.get("mommy", false)):
 				if String(sound.kind) == "MICROPHONE":
-					# If player is safely hidden and Mommy is already searching or finished searching, do not restart pursuit loop
+
 					if player_hidden and (bool(enemy.get("mom_searching", false)) or float(enemy.get("mom_search_cooldown", 0.0)) > 0.0):
 						continue
 					enemy.mom_pursuing = not player_hidden
@@ -2429,7 +2373,6 @@ func _propagate_noise(delta: float) -> void:
 			else:
 				enemy.alert = true
 
-
 func _emit_noise(kind: String, origin: Vector2, intensity: float, radius: float = -1.0) -> void:
 	var effective_radius := radius
 	if effective_radius < 0.0:
@@ -2445,7 +2388,6 @@ func _emit_noise(kind: String, origin: Vector2, intensity: float, radius: float 
 			"propagated": false
 		}
 	)
-
 
 func _rooms_connected(first_room: int, second_room: int) -> bool:
 	if first_room == second_room:
@@ -2463,7 +2405,6 @@ func _rooms_connected(first_room: int, second_room: int) -> bool:
 		):
 			return true
 	return false
-
 
 func _damage_enemy(index: int, amount: float) -> void:
 	var enemy: Dictionary = enemies[index]
@@ -2528,7 +2469,6 @@ func _damage_enemy(index: int, amount: float) -> void:
 			extract_ready = true
 		_save_career()
 
-
 func _begin_mommy_transition() -> void:
 	if game_state != "playing" or level_index != DEVIL_LEVEL_INDEX:
 		return
@@ -2537,7 +2477,6 @@ func _begin_mommy_transition() -> void:
 	alarm_player.stop()
 	_stop_level3_audio()
 	transition_overlay.visible = true
-
 
 func _damage_player(amount: float) -> void:
 	if player_dead or game_state != "playing":
@@ -2550,7 +2489,6 @@ func _damage_player(amount: float) -> void:
 		player_anim = "death"
 		_play_sfx("failure")
 		_end_game(false, "OPERATIVE ELIMINATED BY HOSTILE FORCES")
-
 
 func _update_cameras(delta: float) -> void:
 	if level_index == DEVIL_LEVEL_INDEX:
@@ -2569,7 +2507,6 @@ func _update_cameras(delta: float) -> void:
 			camera.triggered = true
 			_trigger_alarm()
 
-
 func _trigger_alarm() -> void:
 	if alarm_active:
 		return
@@ -2577,7 +2514,6 @@ func _trigger_alarm() -> void:
 	alarm_timer = alarm_seconds
 	alarm_player.stream = sound_streams["alarm"]
 	alarm_player.play()
-
 
 func _update_collectibles(delta: float) -> void:
 	for item in collectibles:
@@ -2597,7 +2533,6 @@ func _update_collectibles(delta: float) -> void:
 				career_score += int(item.value)
 				_play_sfx("coin")
 				_save_career()
-
 
 func _first_obstacle_hit(from: Vector2, to: Vector2) -> Dictionary:
 	var best_distance := INF
@@ -2630,10 +2565,8 @@ func _first_obstacle_hit(from: Vector2, to: Vector2) -> Dictionary:
 				hit = true
 	return {"hit": hit, "point": best_point}
 
-
 func _has_line_of_sight(from: Vector2, to: Vector2) -> bool:
 	return not bool(_first_obstacle_hit(from, to).hit)
-
 
 func _vision_polygon(
 	origin: Vector2, angle: float, fov: float, distance: float, steps: int, color: Color
@@ -2652,7 +2585,6 @@ func _vision_polygon(
 	if clipped.size() >= 3:
 		draw_colored_polygon(clipped, color)
 
-
 func _exit_reached() -> bool:
 	if level_index == MOMMY_LEVEL_INDEX:
 		for door in doors:
@@ -2670,14 +2602,12 @@ func _exit_reached() -> bool:
 	)
 	return player_position.distance_to(closest) <= PLAYER_RADIUS
 
-
 func _alive_enemy_count() -> int:
 	var count := 0
 	for enemy in enemies:
 		if enemy.alive:
 			count += 1
 	return count
-
 
 func _win(clean: bool, targets_left: int) -> void:
 	if game_state != "playing":
@@ -2706,7 +2636,6 @@ func _win(clean: bool, targets_left: int) -> void:
 		)
 	result_next_button.visible = level_index < 2
 
-
 func _end_game(_unused: bool, reason: String) -> void:
 	if game_state != "playing":
 		return
@@ -2720,7 +2649,6 @@ func _end_game(_unused: bool, reason: String) -> void:
 	result_title.text = "MISSION FAILED!"
 	result_summary.text = reason
 	result_next_button.visible = false
-
 
 func _start_level(index: int, reset_score: bool = true) -> void:
 	_stop_level3_audio()
@@ -2740,11 +2668,9 @@ func _start_level(index: int, reset_score: bool = true) -> void:
 	if level_index == MOMMY_LEVEL_INDEX:
 		_start_level3_audio()
 
-
 func _continue_level() -> void:
 	if game_state == "victory" and level_index < 2:
 		_start_level(level_index + 1, false)
-
 
 func _retry_level() -> void:
 	session_kills = 0
@@ -2752,13 +2678,11 @@ func _retry_level() -> void:
 	carried_score = 0
 	_start_level(level_index, true)
 
-
 func _show_menu() -> void:
 	game_state = "menu"
 	alarm_player.stop()
 	_stop_level3_audio()
 	_build_level(0)
-
 
 func _load_career() -> void:
 	var config := ConfigFile.new()
@@ -2766,7 +2690,6 @@ func _load_career() -> void:
 		career_score = int(config.get_value("career", "score", 0))
 		career_coins = int(config.get_value("career", "coins", 0))
 		career_kills = int(config.get_value("career", "kills", 0))
-
 
 func _save_career() -> void:
 	var config := ConfigFile.new()
@@ -2776,7 +2699,6 @@ func _save_career() -> void:
 	var error := config.save("user://career.cfg")
 	if error != OK:
 		push_error("Could not save career statistics: %s" % error_string(error))
-
 
 func _run_math_checks() -> void:
 	assert(CG.rotate_points([Vector2.RIGHT], PI * 0.5)[0].distance_to(Vector2.DOWN) < 0.001)
@@ -2790,7 +2712,6 @@ func _run_math_checks() -> void:
 	)
 	_validate_catalog_walkability()
 	_build_level(0)
-
 
 func _validate_catalog_walkability() -> void:
 	for index in range(MOMMY_LEVEL_INDEX + 1):
@@ -2821,13 +2742,11 @@ func _validate_catalog_walkability() -> void:
 				"%s collectible center is inside a wall or crate" % level_name
 			)
 
-
 func _blocked_by_static_geometry(point: Vector2, radius: float) -> bool:
 	for rect in walls + boxes:
 		if _circle_rect(point, radius, rect):
 			return true
 	return false
-
 
 func _draw() -> void:
 	var room := Rect2(ORIGIN, world_size)
@@ -2888,7 +2807,6 @@ func _draw() -> void:
 	_draw_enemy_bullets()
 	_draw_player()
 	_draw_hitboxes()
-
 
 func _draw_house_room_floor() -> void:
 	var rooms := [
@@ -2980,7 +2898,6 @@ func _draw_house_room_floor() -> void:
 			Color(0.94, 0.82, 0.67, 0.62)
 		)
 
-
 func _draw_exit() -> void:
 	var ready := extract_ready or alarm_active
 	var color := Color(0.08, 0.9, 0.55, 0.35) if ready else Color(0.1, 0.62, 0.85, 0.22)
@@ -3005,7 +2922,6 @@ func _draw_exit() -> void:
 		12,
 		Color.WHITE
 	)
-
 
 func _draw_obstacles() -> void:
 	_draw_wall_art()
@@ -3038,7 +2954,6 @@ func _draw_obstacles() -> void:
 				Color("#886746"),
 				4.0
 			)
-
 
 func _draw_house_furniture() -> void:
 	for furniture in house_furniture:
@@ -3181,7 +3096,6 @@ func _draw_house_furniture() -> void:
 					5.0
 				)
 
-
 func _draw_hide_spots() -> void:
 	for index in range(hide_spots.size()):
 		var spot: Dictionary = hide_spots[index]
@@ -3229,7 +3143,6 @@ func _draw_hide_spots() -> void:
 			10,
 			Color("#c2c5ae")
 		)
-
 
 func _draw_wall_art() -> void:
 	var ox := ORIGIN.x
@@ -3312,7 +3225,6 @@ func _draw_wall_art() -> void:
 			Color(1, 1, 1, 0.8)
 		)
 
-
 func _draw_ambient_lights() -> void:
 	var glow: Texture2D = textures.get("FX/glow.png")
 	var fixture: Texture2D = textures.get("Environment/wall_light.png")
@@ -3382,7 +3294,6 @@ func _draw_ambient_lights() -> void:
 			Vector2(26, 26),
 			Color.WHITE
 		)
-
 
 func _draw_props() -> void:
 	var width := world_size.x
@@ -3481,7 +3392,6 @@ func _draw_props() -> void:
 			draw_circle(prop[1] + Vector2(3, -3), size * 0.42, Color(0, 0, 0, 0.35))
 			_draw_texture_actor(texture, prop[1], float(prop[3]), Vector2.ONE * size, Color.WHITE)
 
-
 func _draw_doors() -> void:
 	for door in doors:
 		if bool(door.get("broken", false)):
@@ -3531,7 +3441,6 @@ func _draw_doors() -> void:
 				Color(0.48, 0.84, 0.96, 0.78)
 			)
 
-
 func _draw_collectibles() -> void:
 	for item in collectibles:
 		if item.collected:
@@ -3577,7 +3486,6 @@ func _draw_collectibles() -> void:
 		else:
 			draw_circle(pos, 8.0 * pulse, color)
 
-
 func _draw_cameras() -> void:
 	var texture: Texture2D = textures.get("Environment/security_camera.png")
 	for camera in cameras:
@@ -3591,7 +3499,6 @@ func _draw_cameras() -> void:
 			3.0 + 1.2 * absf(sin(elapsed * 5.0)),
 			led_color
 		)
-
 
 func _draw_enemies() -> void:
 	for enemy in enemies:
@@ -3652,16 +3559,16 @@ func _draw_enemies() -> void:
 				boss_phase = 3
 			elif hp_frac <= 0.66:
 				boss_phase = 2
-			
+
 			var phase_tint := Color.WHITE
 			var glow_alpha := 0.16
 			if boss_phase == 2:
-				phase_tint = Color(1.0, 0.78, 0.7) # Warm Pink, vents open
+				phase_tint = Color(1.0, 0.78, 0.7)
 				glow_alpha = 0.30
 			elif boss_phase == 3:
-				phase_tint = Color(1.0, 0.6, 0.52) # Hot Red, final assault
+				phase_tint = Color(1.0, 0.6, 0.52)
 				glow_alpha = 0.40
-				
+
 			var boss_tint := Color(1.0, 0.45, 0.35) if float(enemy.flash) > 0.0 else phase_tint
 
 			if shadow_tex:
@@ -3673,7 +3580,7 @@ func _draw_enemies() -> void:
 				)
 			else:
 				draw_circle(enemy.pos, 38.0 * actor_scale, Color(0.0, 0.0, 0.0, 0.45))
-				
+
 			var glow_tex: Texture2D = textures.get("FX/glow.png")
 			if glow_tex:
 				var pulse := 0.5 + 0.5 * sin(elapsed * 5.0)
@@ -3686,7 +3593,7 @@ func _draw_enemies() -> void:
 				)
 
 			if texture:
-				# Unity boss.png head points UP (+Y), rotates by angle - PI*0.5
+
 				draw_set_transform(enemy.pos, float(enemy.angle) - PI * 0.5, Vector2.ONE)
 				draw_texture_rect(
 					texture,
@@ -3730,7 +3637,6 @@ func _draw_enemies() -> void:
 			)
 			continue
 
-		# Guard & Enforcer (from HunterAssassinUnity)
 		if shadow_tex:
 			draw_texture_rect(
 				shadow_tex,
@@ -3758,7 +3664,6 @@ func _draw_enemies() -> void:
 				shield_color = Color(1.0, 1.0, 1.0, 1.0)
 			draw_arc(enemy.pos, shield_radius, start_ang, end_ang, 14, shield_color, 3.5)
 			draw_arc(enemy.pos, shield_radius - 2.0, start_ang + 0.1, end_ang - 0.1, 12, Color(0.75, 1.0, 0.98, 0.8), 1.5)
-
 
 func _draw_player() -> void:
 	if player_hidden:
@@ -3792,7 +3697,7 @@ func _draw_player() -> void:
 
 	if sprint_noise:
 		draw_arc(player_position, SPRINT_NOISE_RADIUS, 0.0, TAU, 64, Color(0.98, 0.8, 0.08, 0.22), 1.5)
-	
+
 	var player_tint := Color(1.0, 0.25, 0.25) if player_damage_flash > 0.0 else Color.WHITE
 	if texture:
 		_draw_player_texture(
@@ -3811,14 +3716,12 @@ func _draw_player() -> void:
 			3.0
 		)
 
-
 func _draw_player_flashlight() -> void:
 	if game_state != "playing" or player_dead or player_hidden or level_index == MOMMY_LEVEL_INDEX:
 		return
 	_vision_polygon(player_position, player_angle, FLASHLIGHT_FOV, FLASHLIGHT_RANGE, 26, Color(1.0, 1.0, 0.85, 0.12))
 	var forward := Vector2(cos(player_angle), sin(player_angle))
 	draw_circle(player_position + forward * 10.0, 4.0, Color(1.0, 1.0, 0.85, 0.35))
-
 
 func _draw_active_lasers() -> void:
 	for laser in active_lasers:
@@ -3828,7 +3731,6 @@ func _draw_active_lasers() -> void:
 		draw_line(laser.from, laser.to, Color(col.r, col.g, col.b, col.a * alpha), 7.0)
 		draw_line(laser.from, laser.to, Color(core_col.r, core_col.g, core_col.b, alpha), 1.8)
 
-
 func _draw_player_bolts() -> void:
 	for bolt in player_bolts:
 		var direction: Vector2 = Vector2(bolt.velocity).normalized()
@@ -3837,14 +3739,12 @@ func _draw_player_bolts() -> void:
 		draw_circle(bolt.pos, 4.0, Color(1.0, 0.2, 0.25, 0.9))
 		draw_circle(bolt.pos, 2.0, Color(1.0, 0.85, 0.85))
 
-
 func _draw_player_texture(
 	texture: Texture2D, position: Vector2, size: Vector2, tint: Color
 ) -> void:
 	draw_set_transform(position, player_angle, Vector2.ONE)
 	draw_texture_rect(texture, Rect2(-size * 0.5, size), false, tint)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
 
 func _draw_enemy_bullets() -> void:
 	for bullet in enemy_bullets:
@@ -3859,17 +3759,14 @@ func _draw_enemy_bullets() -> void:
 		draw_circle(bullet.pos, 5.0, color)
 		draw_circle(bullet.pos, 2.0, Color("#fff5d7"))
 
-
 func _get_enemy_frame(kind: String, state: String, angle: float, time: float) -> Texture2D:
 	return _get_actor_frame(kind, state, _animation_frame(kind, state, time))
-
 
 func _direction_name(angle: float) -> String:
 	var direction := Vector2.RIGHT.rotated(angle)
 	if absf(direction.x) > absf(direction.y):
 		return "right" if direction.x > 0.0 else "left"
 	return "front" if direction.y > 0.0 else "back"
-
 
 func _draw_actor_shape(position: Vector2, angle: float, color: Color) -> void:
 	var local := PackedVector2Array(
@@ -3885,14 +3782,12 @@ func _draw_actor_shape(position: Vector2, angle: float, color: Color) -> void:
 		1.2
 	)
 
-
 func _draw_texture_actor(
 	texture: Texture2D, position: Vector2, angle: float, size: Vector2, tint: Color
 ) -> void:
 	draw_set_transform(position, angle, Vector2.ONE)
 	draw_texture_rect(texture, Rect2(-size * 0.5, size), false, tint)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
 
 func _draw_hitboxes() -> void:
 	if not debug_overlay:
@@ -3918,7 +3813,6 @@ func _draw_hitboxes() -> void:
 		1.0
 	)
 
-
 func _animation_frame(kind: String, state: String, time: float) -> int:
 	var frames: Array = art_frames.get("%s/%s" % [kind, state], [])
 	if frames.is_empty():
@@ -3930,13 +3824,11 @@ func _animation_frame(kind: String, state: String, time: float) -> int:
 		return int(time * fps) % frames.size()
 	return mini(int(time * fps), frames.size() - 1)
 
-
 func _get_actor_frame(kind: String, state: String, index: int) -> Texture2D:
 	var frames: Array = art_frames.get("%s/%s" % [kind, state], [])
 	if frames.is_empty() and state == "alert":
 		frames = art_frames.get("%s/idle" % kind, [])
 	return frames[index % frames.size()] if not frames.is_empty() else null
-
 
 func _build_ui() -> void:
 	ui_layer = CanvasLayer.new()
@@ -4103,7 +3995,6 @@ func _build_ui() -> void:
 	transition_overlay.z_index = 100
 	root.add_child(transition_overlay)
 
-
 func _make_overlay_panel(root: Control) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.anchor_left = 0.5
@@ -4122,7 +4013,6 @@ func _make_overlay_panel(root: Control) -> PanelContainer:
 	root.add_child(panel)
 	return panel
 
-
 func _panel_style(color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
@@ -4132,7 +4022,6 @@ func _panel_style(color: Color) -> StyleBoxFlat:
 	style.set_content_margin_all(10)
 	return style
 
-
 func _make_label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
@@ -4140,13 +4029,11 @@ func _make_label(text: String, size: int, color: Color) -> Label:
 	label.add_theme_color_override("font_color", color)
 	return label
 
-
 func _add_hud_label(parent: Control, text: String, size: int, color: Color) -> Label:
 	var label := _make_label(text, size, color)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	parent.add_child(label)
 	return label
-
 
 func _add_button(parent: Control, text: String, callback: Callable) -> Button:
 	var button := Button.new()
@@ -4155,7 +4042,6 @@ func _add_button(parent: Control, text: String, callback: Callable) -> Button:
 	button.pressed.connect(callback)
 	parent.add_child(button)
 	return button
-
 
 func _update_ui() -> void:
 	if not is_instance_valid(ui_layer):
@@ -4239,10 +4125,10 @@ func _update_ui() -> void:
 			)
 	result_next_button.visible = game_state == "victory" and level_index < 2
 
-
 func _remaining_items(medkit: bool) -> int:
 	var count := 0
 	for item in collectibles:
 		if not item.collected and bool(item.medkit) == medkit:
 			count += 1
 	return count
+

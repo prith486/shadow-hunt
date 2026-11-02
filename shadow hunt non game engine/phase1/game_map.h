@@ -4,25 +4,16 @@
 #include <vector>
 #include "core_graphics.h"
 
-// ============================================================================
-// MAP SETTINGS
-// Matrix = 20 rows x 36 columns
-// CELL_SIZE = 50 pixels
-// MAP_WIDTH = 36 * 50 = 1800 pixels
-// MAP_HEIGHT = 20 * 50 = 1000 pixels
-// ============================================================================
 const int CELL_SIZE = 50;
 const int MAP_ROWS = 20;
 const int MAP_COLS = 36;
-const int MAP_WIDTH = MAP_COLS * CELL_SIZE;   // 1800
-const int MAP_HEIGHT = MAP_ROWS * CELL_SIZE;  // 1000
+const int MAP_WIDTH = MAP_COLS * CELL_SIZE;
+const int MAP_HEIGHT = MAP_ROWS * CELL_SIZE;
 const int WALL_THICKNESS = 5;
 
-// Default screen / camera window size
 const int DEFAULT_SCREEN_WIDTH = 900;
 const int DEFAULT_SCREEN_HEIGHT = 600;
 
-// Wireframe and Debug Colors
 #define COLOR_WIREFRAME   COLOR(200, 200, 200)
 #define COLOR_MAP_BG      COLOR(0, 0, 0)
 #define COLOR_GRID        COLOR(185, 183, 177)
@@ -51,14 +42,11 @@ private:
 public:
     GameMap(int scrW = DEFAULT_SCREEN_WIDTH, int scrH = DEFAULT_SCREEN_HEIGHT);
 
-    // Grid wall collision check
     bool is_wall(int row, int col) const;
 
-    // Procedural generation from grid matrix
     void generate_walls();
     void generate_zero_objects();
 
-    // Drawing routines using DDA and Bresenham algorithms
     void draw_floor(int camX, int camY);
     void draw_wall(int x1, int y1, int x2, int y2, int camX, int camY);
     void draw_walls(int camX, int camY);
@@ -72,16 +60,14 @@ public:
     void draw_character(int camX, int camY);
     void draw_debug_grid(int camX, int camY);
 
-    // Master draw routine
     void draw(int camX = 0, int camY = 0, bool showGrid = true);
 
-    // Collision geometry
     std::vector<Rect> get_collision_rects() const;
 
-    // Getters
     const std::vector<WallSegment>& getWallSegments() const { return wall_segments; }
     const std::vector<Rect>& getCrates() const { return crates; }
     const std::vector<Rect>& getPeachBlocks() const { return peach_blocks; }
 };
 
-#endif // GAME_MAP_H
+#endif
+

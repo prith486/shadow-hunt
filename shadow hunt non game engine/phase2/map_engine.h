@@ -6,12 +6,6 @@
 #include "cg_math.h"
 #include "core_graphics.h"
 
-// ============================================================================
-// MAP ENGINE (PHASE 2)
-// Parametric Facility Generator: Walls, Crossed Crate Obstacles, Doors, Exit Pad
-// NO GRID LINES IN BETWEEN MAPS!
-// ============================================================================
-
 struct Wall {
     float x1, y1, x2, y2;
     std::string wall_id;
@@ -86,4 +80,5 @@ public:
     void render(bool alarm_active = false) const;
 };
 
-#endif // MAP_ENGINE_H
+#endif
+

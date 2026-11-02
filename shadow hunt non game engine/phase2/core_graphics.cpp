@@ -1,15 +1,11 @@
 #include "core_graphics.h"
 
-// Safe putpixel with window viewport clipping
 static inline void safePutPixel(int x, int y, int color) {
     if (x >= 0 && x < getmaxx() && y >= 0 && y < getmaxy()) {
         putpixel(x, y, color);
     }
 }
 
-// ============================================================================
-// DDA LINE ALGORITHM — Exact port of assign1.cpp & graphics.py dda_line
-// ============================================================================
 void drawLineDDA(int x1, int y1, int x2, int y2, int color) {
     float delx = (float)(x2 - x1);
     float dely = (float)(y2 - y1);
@@ -33,9 +29,6 @@ void drawLineDDA(int x1, int y1, int x2, int y2, int color) {
     }
 }
 
-// ============================================================================
-// BRESENHAM LINE ALGORITHM — Exact port of assign1b.cpp & graphics.py
-// ============================================================================
 void drawBresenhamLine(int x1, int y1, int x2, int y2, int color) {
     int dx = std::abs(x2 - x1);
     int dy = std::abs(y2 - y1);
@@ -71,9 +64,6 @@ void drawBresenhamLine(int x1, int y1, int x2, int y2, int color) {
     }
 }
 
-// ============================================================================
-// MIDPOINT CIRCLE ALGORITHM — Exact port of assign2.cpp & graphics.py
-// ============================================================================
 static inline void drawSymmetricPoints(int xc, int yc, int x, int y, int color) {
     safePutPixel(xc + x, yc + y, color);
     safePutPixel(xc - x, yc + y, color);
@@ -127,9 +117,6 @@ void drawMidpointCircle(int xc, int yc, int r, int color) {
     }
 }
 
-// ============================================================================
-// WIREFRAME POLYGON HELPER
-// ============================================================================
 void drawWireframePolygon(const std::vector<ScreenPoint>& points, int color) {
     size_t n = points.size();
     if (n < 2) return;
@@ -148,3 +135,4 @@ void drawPolyLine(const std::vector<ScreenPoint>& points, int color) {
                           (int)std::round(points[i+1].x), (int)std::round(points[i+1].y), color);
     }
 }
+

@@ -6,11 +6,6 @@
 #include "cg_math.h"
 #include "map_engine.h"
 
-// ============================================================================
-// GAME ENTITIES (PHASE 2)
-// Player (Assassin), Enemy (Guard & Shielded Enforcer), Security Camera, Collectibles
-// ============================================================================
-
 class Player {
 public:
     float x, y, speed;
@@ -105,4 +100,5 @@ public:
     void render() const;
 };
 
-#endif // ENTITIES_H
+#endif
+

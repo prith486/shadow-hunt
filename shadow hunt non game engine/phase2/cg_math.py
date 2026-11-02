@@ -1,11 +1,11 @@
 import math
 from typing import List, Tuple, Union
-
 Point = Tuple[float, float]
 Points = List[Point]
 Matrix3x3 = List[List[float]]
 
 class CGMath:
+
     @staticmethod
     def identity_matrix() -> Matrix3x3:
         return [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
@@ -23,7 +23,7 @@ class CGMath:
         x, y = point
         nx = matrix[0][0] * x + matrix[0][1] * y + matrix[0][2]
         ny = matrix[1][0] * x + matrix[1][1] * y + matrix[1][2]
-        w  = matrix[2][0] * x + matrix[2][1] * y + matrix[2][2]
+        w = matrix[2][0] * x + matrix[2][1] * y + matrix[2][2]
         if w != 1.0 and w != 0.0:
             nx /= w
             ny /= w
@@ -43,7 +43,7 @@ class CGMath:
 
     @staticmethod
     def rotation_matrix(angle_rad: float) -> Matrix3x3:
-        c, s = math.cos(angle_rad), math.sin(angle_rad)
+        c, s = (math.cos(angle_rad), math.sin(angle_rad))
         return [[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]]
 
     @classmethod
@@ -69,13 +69,14 @@ class CGMath:
     @staticmethod
     def bresenham_line(x1: int, y1: int, x2: int, y2: int) -> List[Tuple[int, int]]:
         points = []
-        dx, dy = abs(x2 - x1), abs(y2 - y1)
+        dx, dy = (abs(x2 - x1), abs(y2 - y1))
         sx = 1 if x1 < x2 else -1
         sy = 1 if y1 < y2 else -1
         err = dx - dy
         while True:
             points.append((x1, y1))
-            if x1 == x2 and y1 == y2: break
+            if x1 == x2 and y1 == y2:
+                break
             e2 = 2 * err
             if e2 > -dy:
                 err -= dy
@@ -87,65 +88,49 @@ class CGMath:
 
     @staticmethod
     def midpoint_circle(xc: float, yc: float, r: float) -> List[Tuple[int, int]]:
-        """
-        Midpoint Circle Algorithm — exact port of Assignment 2 assign2.cpp
-        (drawMidpointCircle / drawSymmetricPoints).
-        Initial decision parameter: del = 2 * (1 - r)
-        """
-        cx, cy = int(round(xc)), int(round(yc))
+        cx, cy = (int(round(xc)), int(round(yc)))
         radius = int(round(r))
         if radius <= 0:
             return [(cx, cy)]
-
         x = 0
         y = radius
-        del_param = 2 * (1 - radius)  # matches C++: del = 2 * (1 - r)
+        del_param = 2 * (1 - radius)
         circle_points = set()
 
         def draw_symmetric_points(px: int, py: int):
-            # Exact 8-way symmetry from assign2.cpp drawSymmetricPoints
-            circle_points.update([
-                (cx + px, cy + py), (cx - px, cy + py),
-                (cx + px, cy - py), (cx - px, cy - py),
-                (cx + py, cy + px), (cx - py, cy + px),
-                (cx + py, cy - px), (cx - py, cy - px),
-            ])
-
+            circle_points.update([(cx + px, cy + py), (cx - px, cy + py), (cx + px, cy - py), (cx - px, cy - py), (cx + py, cy + px), (cx - py, cy + px), (cx + py, cy - px), (cx - py, cy - px)])
         while x <= y:
             draw_symmetric_points(x, y)
-
             if del_param < 0:
-                sig = (2 * del_param) + (2 * y) - 1
+                sig = 2 * del_param + 2 * y - 1
                 if sig <= 0:
                     x += 1
-                    del_param = del_param + (2 * x) + 1
+                    del_param = del_param + 2 * x + 1
                 else:
                     x += 1
                     y -= 1
-                    del_param = del_param + (2 * x) - (2 * y) + 2
+                    del_param = del_param + 2 * x - 2 * y + 2
             elif del_param > 0:
-                sig1 = (2 * del_param) - (2 * x) - 1
+                sig1 = 2 * del_param - 2 * x - 1
                 if sig1 > 0:
                     y -= 1
-                    del_param = del_param - (2 * y) + 1
+                    del_param = del_param - 2 * y + 1
                 else:
                     x += 1
                     y -= 1
-                    del_param = del_param + (2 * x) - (2 * y) + 2
+                    del_param = del_param + 2 * x - 2 * y + 2
             else:
                 x += 1
                 y -= 1
-                del_param = del_param + (2 * x) - (2 * y) + 2
-
+                del_param = del_param + 2 * x - 2 * y + 2
         return sorted(list(circle_points))
-
-    # Alias kept so older call sites keep working; algorithm is Midpoint (assign2.cpp)
     bresenham_circle = midpoint_circle
 
     @staticmethod
     def point_in_polygon(x: float, y: float, polygon_points: Points) -> bool:
         n = len(polygon_points)
-        if n < 3: return False
+        if n < 3:
+            return False
         inside = False
         p1x, p1y = polygon_points[0]
         for i in range(1, n + 1):
@@ -155,7 +140,7 @@ class CGMath:
                     x_inters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x if p1y != p2y else p1x
                     if p1x == p2x or x <= x_inters:
                         inside = not inside
-            p1x, p1y = p2x, p2y
+            p1x, p1y = (p2x, p2y)
         return inside
 
     @staticmethod
@@ -163,9 +148,9 @@ class CGMath:
         return math.hypot(x2 - x1, y2 - y1)
 
     @staticmethod
-    def create_cone_polygon(origin_x: float, origin_y: float, facing_angle: float, fov_angle: float, length: float, num_arc_steps: int = 12) -> Points:
+    def create_cone_polygon(origin_x: float, origin_y: float, facing_angle: float, fov_angle: float, length: float, num_arc_steps: int=12) -> Points:
         pts: Points = [(origin_x, origin_y)]
-        start_ang = facing_angle - (fov_angle / 2.0)
+        start_ang = facing_angle - fov_angle / 2.0
         step_ang = fov_angle / float(num_arc_steps)
         for i in range(num_arc_steps + 1):
             curr_ang = start_ang + i * step_ang
