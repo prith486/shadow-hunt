@@ -14,19 +14,63 @@ The **Shadow Hunt** project spans two complementary engineering systems:
 
 ---
 
+## 🔄 Inter-Phase Architectural Continuity & Engineering Lineage
+
+Every component across the standalone computer graphics pipeline directly informs, connects, and feeds into the game engine architecture. Nothing exists in isolation:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                STANDALONE COMPUTER GRAPHICS PIPELINE                                   │
+├─────────────────────────────────────────┬──────────────────────────────────┬───────────────────────────┤
+│  Prithvi: Phase 1 (Rasterization/PPM)   │ Snehal: Phase 2 (2D Math & $3×3$  │ Anushka: Phase 4 (Polygon │
+│  & Phase 3 (Homogeneous TSR Pipeline)   │ Kinematics) & Phase 2/3 (Entity  │ Filling: Boundary/Flood/  │
+│  & Phase 5 (Clipping Kernels)           │ Patrol & Camera Simulation)      │ Scan-Line ET/AET + GUI)   │
+└───────────────────┬─────────────────────┴────────────────┬─────────────────┴─────────────┬─────────────┘
+                    │                                      │                               │
+                    ▼ (Algorithmic Lineage)                ▼ (Algorithmic Lineage)         ▼ (Algorithmic Lineage)
+┌───────────────────┴─────────────────────┬────────────────┴─────────────────┬─────────────┴─────────────┐
+│  • Master Game Loop & Frame Sync        │  • Dynamic Raycast FOV Cones     │  • Tactical HUD & Live    │
+│  • Player Kinematics & Sprint Vectors   │  • Patrol Guards & Shield Logic  │    Mic Decibel Meter      │
+│  • Complete Level 3 Nightmare Stage:    │  • Level 2 Warden Boss Arena     │  • Level 1 Facility Map   │
+│    Mommy Acoustic AI & Room DAG Nodes   │    (Kinetic Deflection Vectors)  │  • Waveform Audio Synth   │
+│  • Headless Automated CI Test Suites    │  • `cg_math.gd` Geometry Core    │  • Collectibles & Menus   │
+├─────────────────────────────────────────┴──────────────────────────────────┴───────────────────────────┤
+│                                      GODOT 4 RUNTIME GAME ARCHITECTURE                                 │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+1. **Prithvi's Connected Lineage (Core Architecture, Physics & Nightmare Survival):**
+   - **Phase 1 (Rasterization & Primitives) $\to$ Player Kinematics & Physics:** The from-scratch integer grid coordinate systems and line rasterization math from Phase 1 establish the exact tile-snapped motion, velocity damping, and sprint vector physics used by the Player Operative.
+   - **Phase 3 (Homogeneous TSR Transformations) $\to$ Master Game Engine Coordinator (`game.gd`):** The $3\times 3$ affine matrix transformation stack and Translate-Scale-Rotate compositor directly drive scene graph management, multi-resolution camera scaling, and global game lifecycle state transitions.
+   - **Phase 5 (Mathematical Clipping Kernels) $\to$ Complete Level 3 Nightmare Stage:** The boundary clipping algorithms (Cohen-Sutherland and Liang-Barsky) directly inform the spatial room-to-room containment logic, doorway transition boundaries, and acoustic occlusion calculations powering the blind Mommy AI's navigation DAG, live microphone decibel amplitude bus capture, and floor/glass shockwave alerts.
+   - **Verification Continuity:** The rigorous test-driven validation in Phase 1 and Phase 5 C++ algorithms connects directly to Godot's headless automated CI test suites (`mommy_voice_ai_test.gd` and `level3_revision_test.gd`).
+
+2. **Snehal's Connected Lineage (Spatial Mathematics, AI & Combat Systems):**
+   - **Phase 2 (2D Matrix Mathematics & Entity Hierarchy) $\to$ Dynamic Field of View (FOV) Engine:** Homogeneous $3\times 3$ matrix operations, forward kinematics, and pivot rotation formulas directly power Godot's 2D raycast vision cone system ($90^\circ$ sweep angle, forward heading dot-products, and dynamic shadow polygon generation).
+   - **Phase 2 & 3 (Autonomous Entity Simulation & Security Cameras) $\to$ Tactical Enemy Combat Framework:** Custom entity waypoint loops and angular sweeping camera arcs scale into the behavior trees for Patrol Guards (3-tier awareness states: Unaware $\to$ Suspicious $\to$ Alerted) and Enforcers with frontal riot-shield physics.
+   - **Phase 5 (Interactive Clipping Visualizers & Boundary Geometry) $\to$ Level 2 Warden Boss Multi-Phase Arena:** Interactive geometry manipulation from Phase 5 inspires the mathematical foundation of the Warden Boss combat engine, including normal vector reflections for kinetic shield deflection, predictive homing projectile trajectories, and radial ground slam shockwaves implemented in `cg_math.gd`.
+
+3. **Anushka's Connected Lineage (Raster Operations, Data Systems & Interactive UI):**
+   - **Phase 4 (Polygon Area Filling Suite) $\to$ Tactical Facility Architecture:** The algorithmic understanding of 4/8-connected Boundary Fill, Flood Fill, and Scan-Line Edge Table (ET/AET) processing informs the tilemap layout design, spatial obstacle placement, and corridor chokepoints of Level 1 (The Compound).
+   - **Phase 4 (Live Visualizer GUI) & Phase 2/3 (Collectibles/Scoring) $\to$ Dynamic HUD & Audio Visualizers:** The real-time visual feedback loops developed for scanline rendering directly drive the in-game tactical HUD overlay, animated health pips, and the live microphone decibel meter for acoustic gameplay.
+   - **Phase 5 (Level Catalog & Asset Management) $\to$ System Integration & Audio Engine:** The multi-level catalog structure and parser logic connect into the pause/navigation overlay systems, score progression trackers, and real-time programmatic audio synthesis (lasers, klaxons, shield clangs).
+
+---
+
 ## Comprehensive Contribution Matrix
 
-| Functional Area | Subsystem / Module | Primary Lead | Key Deliverables & Algorithms |
+| Functional Area | Subsystem / Module | Primary Lead | Key Deliverables & Algorithmic Lineage |
 | :--- | :--- | :--- | :--- |
-| **With Engine (Godot 4)** | Level 3: Complete Nightmare Stage & Acoustic Voice AI | **Prithvi** | Mommy blind patrol DAG, real-time mic bus decibel tracking, floor/glass shockwaves, hiding spots, 60s survival |
-| **With Engine (Godot 4)** | Master Game Loop & State Machine | **Prithvi** | `game.gd` master coordinator, phase lifecycle, session state, frame-delta synchronization |
+| **With Engine (Godot 4)** | Level 3: Complete Nightmare Stage & Acoustic Voice AI | **Prithvi** | Full Stage 3 ownership: Mommy blind patrol DAG, live mic bus decibel tracking, floor/glass shockwaves, hiding evasion, 60s survival |
+| **With Engine (Godot 4)** | Master Game Loop & Engine Coordinator | **Prithvi** | `game.gd` master coordinator, phase lifecycle, session persistence, frame-delta synchronization |
+| **With Engine (Godot 4)** | Player Kinematics & Movement Physics | **Prithvi** | Tile-snapped motion, sprint acceleration curves ($1.6\times$), quiet sneak damping, jump-hop mechanics |
 | **With Engine (Godot 4)** | Headless CI & Automated Test Suites | **Prithvi** | `mommy_voice_ai_test.gd`, `level3_revision_test.gd` (zero-display automated verification) |
 | **With Engine (Godot 4)** | Native Packaging & Launcher Scripts | **Prithvi** | Windows native binary packaging (`ShadowHunt.exe`), orchestrator scripts (`run_game.bat`) |
-| **With Engine (Godot 4)** | Level 2: Warden Boss Multi-Phase System | **Snehal** | 3-phase state machine: directional shield reflection, homing spread-shots, overdrive teleport & ground slams |
-| **With Engine (Godot 4)** | Stealth AI & Dynamic FOV Raycasting | **Snehal** | 90° FOV cone mathematical projections, ray-march obstacle occlusion, LOS visibility polygon calculation |
+| **With Engine (Godot 4)** | Level 2: Warden Boss Multi-Phase System | **Snehal** | Full Stage 2 ownership: 3-phase state machine, directional shield deflection, homing spread-shots, overdrive teleport & ground slams |
+| **With Engine (Godot 4)** | Stealth AI & Dynamic FOV Raycasting | **Snehal** | 90° FOV cone mathematical projections, ray-march obstacle occlusion, dynamic LOS visibility polygon generation |
 | **With Engine (Godot 4)** | Enemy Archetypes & Combat Mechanics | **Snehal** | Waypoint patrol guards, enforcer riot-shield deflection physics, flank detection, instant takedown logic |
-| **With Engine (Godot 4)** | Computational Geometry Math Library | **Snehal** | `cg_math.gd` (ray-plane intersections, circle-box sweep tests, capsule segment projections) |
-| **With Engine (Godot 4)** | Tactical Concealment & Stealth Interactivity | **Snehal** | Level 1 & 2 Hiding spots, stealth sneaking footstep dampening (`E`), quiet glass door mechanics |
+| **With Engine (Godot 4)** | Computational Geometry Math Library | **Snehal** | `cg_math.gd` (ray-plane intersections, circle-box sweep tests, capsule segment projections, normal reflections) |
+| **With Engine (Godot 4)** | Tactical Concealment & Stealth Interactivity | **Snehal** | Levels 1 & 2 Hiding spots, stealth sneaking footstep dampening (`E`), quiet glass door mechanics |
 | **With Engine (Godot 4)** | Dynamic HUD & Player Status Overlays | **Anushka** | Dynamic health pips, real-time mic decibel level meter, detection status indicators, contextual input prompts |
 | **With Engine (Godot 4)** | Level 1 Compound Layout & Tile Architecture | **Anushka** | Tactical compound design, camera placements, obstacle corridors, extraction gate trigger zones |
 | **With Engine (Godot 4)** | Programmatic Audio Synthesis & Visual FX | **Anushka** | Real-time tone synthesis (lasers, klaxons, shield clangs), particle emitters (sparks, charge trails, flash) |
@@ -50,18 +94,20 @@ The **Shadow Hunt** project spans two complementary engineering systems:
 *Role: Core Engine Architect, Acoustic Horror Lead & Systems Programmer*
 
 #### With Game Engine (Godot 4):
-- **Level 3: Complete Nightmare Stage & Acoustic Voice AI Survival System:**
+- **Level 3: Complete Nightmare Stage & Acoustic Voice AI Survival System (Full Stage Ownership):**
   - Implemented the entire standalone **Nightmare Level (Survive Mommy)** architecture from the ground up.
   - **Acoustic / Microphone Engine:** Connected directly to Godot's audio bus capture to poll live USB/microphone decibel amplitudes in real time, calculating peak and RMS noise thresholds with dynamic ambient noise floor filtering.
   - **The Blind Mommy AI:** Engineered the autonomous room-to-room navigation DAG. Mommy patrols blindly without vision cones; when microphone audio exceeds threshold ($>3\%$), she immediately calculates shortest path corridors and sprints at high speed ($135\text{ px/s}$) directly to the disturbance origin.
   - **Acoustic Shockwave System:** Programmed noise emission triggers for sprinting across wooden floorboards and shattering fragile glass doors, alerting Mommy instantly across adjacent rooms.
   - **Hiding & Evasion Protocol:** Designed Level 3 hiding interactive entities (Wardrobe, Refrigerator, Sofa, Laundry Basket) that unregister the player's collision shape, sever Mommy's pursuit target, and initiate her autonomous 3–4 second room inspection sequence before resuming patrol.
   - **Survival Extraction & Win State:** Implemented the 60-second survival countdown timer, facility power alarm states, and main entrance extraction gate unlocks.
+- **Master Gameplay Coordinator (`scripts/game.gd`):**
+  - Architected the master game loop, state machine, level transition manager, frame-delta smoothing, and global session persistence.
+- **Player Kinematics & Physics:**
+  - Implemented the Player Operative controller with 8-directional motion, sprint acceleration curves ($1.6\times$ speed), quiet sneak velocity dampening, and jump-hop mechanics.
 - **Headless Automated Test Infrastructure:**
   - Authored `scripts/mommy_voice_ai_test.gd` and `scripts/level3_revision_test.gd` running headlessly via Godot CLI.
   - Automated verification of room navigation DAGs, acoustic thresholds, door traversal, collision boxes, and takedown mechanics.
-- **Master Gameplay Coordinator (`scripts/game.gd`):**
-  - Architected the master game loop, state machine, level transition manager, frame-delta smoothing, and global session persistence.
 - **Native Deployment Pipeline:**
   - Configured standalone Windows binary packaging (`ShadowHunt.exe`) and batch runtime orchestrators (`run_game.bat`).
 
@@ -85,7 +131,7 @@ The **Shadow Hunt** project spans two complementary engineering systems:
 *Role: Lead Graphics Engineer, Boss Combat Architect & AI Systems Specialist*
 
 #### With Game Engine (Godot 4):
-- **Level 2: The Warden Boss Encounter (Complete Combat System):**
+- **Level 2: The Warden Boss Encounter (Full Stage Ownership & Combat System):**
   - Architected and implemented the entire 3-phase combat engine for "The Warden" mech boss.
   - **Phase 1 (Kinetic Energy Shield):** Programmed directional kinetic shield deflection physics utilizing normal vector reflections to bounce frontal player attacks, exposing rear thermal coils as the only vulnerable strike zone.
   - **Phase 2 (Tracking Spread Fire):** Engineered multi-directional spread projectile bursts with predictive angular steering and high-velocity arena charges.
@@ -134,7 +180,7 @@ The **Shadow Hunt** project spans two complementary engineering systems:
   - Created the pause menu interface, mission restart triggers, controls reference screen, and level selection menus.
 
 #### Without Game Engine (Computer Graphics C++ & Python Pipeline):
-- **Phase 4: Polygon Area Filling Suite (`phase4/fill_algo.py`):**
+- **Phase 4: Polygon Area Filling Engine (`phase4/fill_algo.py`):**
   - Implemented 4-Connected and 8-Connected Boundary Fill algorithms with boundary color checking.
   - Implemented recursive and iterative Flood Fill algorithms with replacement color criteria.
   - Researched and developed the Scan-Line Polygon Fill algorithm utilizing Edge Table (ET) and Active Edge Table (AET) sorted by $y_{\min}$, tracking $x$-intersections and inverse slopes ($1/m$).

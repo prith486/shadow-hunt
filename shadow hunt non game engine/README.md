@@ -24,7 +24,7 @@ This non-game engine suite was designed and implemented by **Prithvi**, **Snehal
 - **Snehal:** Phase 2 C++ & Python 2D transformation math engine (`cg_math.cpp`, `entities.cpp`, `map_engine.cpp`), Phase 2 & 3 Autonomous entity simulation & security camera arcs (`enemy.py`, `security_camera.py`), Phase 5 Interactive line & polygon clipping GUI visualizer tool (`clipping_visualizer.py`, `live_clipping_visualizer.py`).
 - **Anushka:** Phase 4 Polygon Area Filling Engine (`fill_algo.py` — Boundary, Flood, and Scan-Line with ET/AET), Phase 4 Real-time interactive scanline filling visualizer GUI (`live_fill_visualizer.py`), Phase 2 & 3 Collectibles and score engine (`collectibles.py`), Phase 5 Level Catalog and multi-level asset management (`level_catalog.py`).
 
-> 📖 **Full Project Breakdown:** See the root [**`CONTRIBUTIONS.md`**](../CONTRIBUTIONS.md) for full system attribution including the Godot 4 game engine implementation.
+> 📖 **Full Project Breakdown & Architectural Lineage:** See the root [**`CONTRIBUTIONS.md`**](../CONTRIBUTIONS.md) for the complete phase-to-engine continuity mapping showing how these five algorithms directly connect into the Godot 4 game engine systems (Stealth FOV, Warden Boss Arena, Mommy Acoustic Voice AI, and HUD).
 
 ---
 
